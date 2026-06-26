@@ -1,0 +1,2 @@
+android.keyboard.template.placeholder:xml/method = 0x7f020000
+android.keyboard.template.placeholder:string/app_name = 0x7f010000

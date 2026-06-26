@@ -1,0 +1,8 @@
+android.keyboard.template.keyboard-template-pngs-0 /home/user/dev/android-keyboard-factory-olin/keyboard-template/build/generated/res/pngs/release
+android.keyboard.template.keyboard-template-updated_navigation_xml-1 /home/user/dev/android-keyboard-factory-olin/keyboard-template/build/generated/updated_navigation_xml/release
+android.keyboard.template.keyboard-template-packageReleaseResources-2 /home/user/dev/android-keyboard-factory-olin/keyboard-template/build/intermediates/incremental/release/packageReleaseResources/merged.dir
+android.keyboard.template.keyboard-template-packageReleaseResources-3 /home/user/dev/android-keyboard-factory-olin/keyboard-template/build/intermediates/incremental/release/packageReleaseResources/stripped.dir
+android.keyboard.template.keyboard-template-release-4 /home/user/dev/android-keyboard-factory-olin/keyboard-template/build/intermediates/merged_res/release/mergeReleaseResources
+android.keyboard.template.keyboard-template-main-5 /home/user/dev/android-keyboard-factory-olin/keyboard-template/src/main/res
+android.keyboard.template.keyboard-template-release-6 /home/user/dev/android-keyboard-factory-olin/keyboard-template/src/release/res
+gradleHome-0 /home/user/.gradle

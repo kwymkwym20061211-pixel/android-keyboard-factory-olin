@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -37,13 +38,33 @@ android {
 }
 
 dependencies {
+    implementation(project(":keyboard-engine"))
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
     implementation(libs.material)
-    implementation(libs.navigation.fragment)
-    implementation(libs.navigation.ui)
+    implementation(libs.core.ktx)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.arsclib)
+    implementation(libs.apksig)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    implementation(libs.recyclerview)
+    implementation(libs.lifecycle.viewmodel.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
+}
+
+val copyKeyboardTemplateApk by tasks.registering(Copy::class) {
+    dependsOn(":keyboard-template:assembleRelease")
+    from(project(":keyboard-template").layout.buildDirectory.dir("outputs/apk/release"))
+    include("*.apk")
+    into(layout.projectDirectory.dir("src/main/assets"))
+    rename { "keyboard_template.apk" }
+}
+
+tasks.named("preBuild") {
+    dependsOn(copyKeyboardTemplateApk)
 }

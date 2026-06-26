@@ -24,3 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Android(keyboard factory"
 include(":app")
+include(":keyboard-engine")
+include(":keyboard-template")

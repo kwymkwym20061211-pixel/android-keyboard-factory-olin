@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <RadioGroup
+        android:id="@+id/roleGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/roleChar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/role_char" />
+
+        <RadioButton
+            android:id="@+id/roleEnter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/role_enter" />
+
+        <RadioButton
+            android:id="@+id/roleDelete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/role_delete" />
+
+        <RadioButton
+            android:id="@+id/rolePageNext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/role_page_next" />
+
+        <RadioButton
+            android:id="@+id/rolePagePrev"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/role_page_prev" />
+
+        <RadioButton
+            android:id="@+id/roleNone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/role_none" />
+
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/charTextInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:autofillHints=""
+        android:hint="@string/char_text_hint"
+        android:inputType="text"
+        android:maxLines="1" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/merge_section_title"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/mergeUpButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/merge_up" />
+
+        <Button
+            android:id="@+id/mergeDownButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/merge_down" />
+
+        <Button
+            android:id="@+id/mergeLeftButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/merge_left" />
+
+        <Button
+            android:id="@+id/mergeRightButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/merge_right" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/splitOutButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/split_out" />
+
+</LinearLayout>
