@@ -1,9 +1,0 @@
-android.keyboard.engine.keyboard-engine-pngs-0 /home/user/dev/android-keyboard-factory-olin/keyboard-engine/build/generated/res/pngs/debug
-android.keyboard.engine.keyboard-engine-updated_navigation_xml-1 /home/user/dev/android-keyboard-factory-olin/keyboard-engine/build/generated/updated_navigation_xml/debug
-android.keyboard.engine.keyboard-engine-mergeDebugResources-2 /home/user/dev/android-keyboard-factory-olin/keyboard-engine/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
-android.keyboard.engine.keyboard-engine-mergeDebugResources-3 /home/user/dev/android-keyboard-factory-olin/keyboard-engine/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
-android.keyboard.engine.keyboard-engine-debug-4 /home/user/dev/android-keyboard-factory-olin/keyboard-engine/build/intermediates/merged_res/debug/mergeDebugResources
-android.keyboard.engine.keyboard-engine-debug-5 /home/user/dev/android-keyboard-factory-olin/keyboard-engine/build/intermediates/packaged_res/debug/packageDebugResources
-android.keyboard.engine.keyboard-engine-debug-6 /home/user/dev/android-keyboard-factory-olin/keyboard-engine/src/debug/res
-android.keyboard.engine.keyboard-engine-main-7 /home/user/dev/android-keyboard-factory-olin/keyboard-engine/src/main/res
-gradleHome-0 /home/user/.gradle

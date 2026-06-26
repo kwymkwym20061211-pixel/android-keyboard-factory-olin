@@ -24,6 +24,9 @@ interface PageDao {
     @Query("SELECT * FROM page WHERE projectId = :projectId ORDER BY pageIndex ASC")
     suspend fun getForProject(projectId: Long): List<PageEntity>
 
+    @Query("SELECT * FROM page WHERE id = :pageId")
+    suspend fun getById(pageId: Long): PageEntity?
+
     @Query("SELECT COALESCE(MAX(pageIndex), -1) FROM page WHERE projectId = :projectId")
     suspend fun maxPageIndex(projectId: Long): Int
 }

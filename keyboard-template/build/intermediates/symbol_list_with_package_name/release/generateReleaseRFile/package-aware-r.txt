@@ -1,3 +1,0 @@
-android.keyboard.template
-string app_name
-xml method

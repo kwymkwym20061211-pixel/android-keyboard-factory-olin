@@ -21,6 +21,9 @@ interface KeyboardProjectDao {
     @Query("SELECT * FROM keyboard_project WHERE id = :id")
     suspend fun getById(id: Long): KeyboardProjectEntity?
 
+    @Query("SELECT * FROM keyboard_project WHERE id = :id")
+    fun observeById(id: Long): Flow<KeyboardProjectEntity?>
+
     @Query("SELECT * FROM keyboard_project WHERE name LIKE '%' || :query || '%' ORDER BY updatedAt DESC")
     fun search(query: String): Flow<List<KeyboardProjectEntity>>
 

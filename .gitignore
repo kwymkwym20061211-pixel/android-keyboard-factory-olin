@@ -9,7 +9,14 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+# Covers every module's build/ output (app/ also has its own nested .gitignore for this).
+**/build/
+
 /captures
 .externalNativeBuild
 .cxx
 local.properties
+
+# Repo-local scratch/work dir for build logs etc. (survives WSL crashes that wipe /tmp).
+# Wipe with ./clean_tmp.sh
+/tmp/

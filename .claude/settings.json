@@ -39,7 +39,14 @@
       "Bash(curl -s --max-time 20 \"https://repo1.maven.org/maven2/com/google/devtools/ksp/com.google.devtools.ksp.gradle.plugin/maven-metadata.xml\")",
       "Bash(./gradlew :keyboard-engine:testDebugUnitTest --console=plain)",
       "Bash(curl -s --max-time 15 \"https://dl.google.com/dl/android/maven2/androidx/recyclerview/recyclerview/maven-metadata.xml\")",
-      "Bash(curl -s --max-time 15 \"https://dl.google.com/dl/android/maven2/androidx/lifecycle/lifecycle-viewmodel-ktx/maven-metadata.xml\")"
+      "Bash(curl -s --max-time 15 \"https://dl.google.com/dl/android/maven2/androidx/lifecycle/lifecycle-viewmodel-ktx/maven-metadata.xml\")",
+      "Bash(./gradlew :app:assembleDebug :keyboard-engine:testDebugUnitTest --console=plain)",
+      "Bash(git check-ignore *)",
+      "Bash(echo \"exit:$?\")",
+      "Bash(xargs -0 -I{} sh -c 'git check-ignore -q \"{}\" && echo \"{}\"')",
+      "Bash(grep -E \"\\(^|/\\)\\\\.gradle/|^local\\\\.properties$|\\\\.iml$|\\\\.idea/caches|\\\\.idea/libraries|\\\\.idea/\\(modules|workspace|navEditor|assetWizardSettings\\)\\\\.xml|\\\\.DS_Store$|\\\\.externalNativeBuild|\\\\.cxx|^captures/\")",
+      "Bash(git rm *)",
+      "Bash(awk '{print $1}')"
     ]
   }
 }

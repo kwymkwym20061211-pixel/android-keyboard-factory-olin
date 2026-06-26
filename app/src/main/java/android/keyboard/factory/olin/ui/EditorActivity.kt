@@ -1,5 +1,6 @@
 package android.keyboard.factory.olin.ui
 
+import android.content.Intent
 import android.keyboard.engine.Direction
 import android.keyboard.engine.KeyDef
 import android.keyboard.engine.KeyRole
@@ -7,31 +8,74 @@ import android.keyboard.factory.olin.R
 import android.keyboard.factory.olin.databinding.ActivityEditorBinding
 import android.keyboard.factory.olin.databinding.DialogAddPageBinding
 import android.keyboard.factory.olin.databinding.DialogEditKeyBinding
+import android.keyboard.factory.olin.databinding.DialogPageSettingsBinding
+import android.keyboard.factory.olin.databinding.DialogProjectSettingsBinding
+import android.keyboard.factory.olin.font.FontImporter
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import java.io.File
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class EditorActivity : AppCompatActivity() {
 
+    private enum class FontTarget { PROJECT, PAGE }
+
     private lateinit var binding: ActivityEditorBinding
     private val projectId: Long by lazy { intent.getLongExtra(EXTRA_PROJECT_ID, -1L) }
     private val viewModel: EditorViewModel by viewModels { EditorViewModel.Factory(application, projectId) }
+
+    private var pendingFontTarget: FontTarget? = null
+    private var activeFontPathLabel: TextView? = null
+    private var lastExportUri: Uri? = null
+
+    private val pickFontLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@registerForActivityResult
+        val target = pendingFontTarget ?: return@registerForActivityResult
+        val fileName = when (target) {
+            FontTarget.PROJECT -> "project_${projectId}_default.ttf"
+            FontTarget.PAGE -> "page_${viewModel.currentPage.value?.id}_override.ttf"
+        }
+        val file = FontImporter.import(this, uri, fileName)
+        when (target) {
+            FontTarget.PROJECT -> viewModel.setDefaultFontPath(file.absolutePath)
+            FontTarget.PAGE -> viewModel.setCurrentPageFontOverride(file.absolutePath)
+        }
+        activeFontPathLabel?.text = getString(R.string.font_path_set_format, file.name)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
 
         binding.prevPageButton.setOnClickListener { viewModel.goToPrevPage() }
         binding.nextPageButton.setOnClickListener { viewModel.goToNextPage() }
         binding.addPageButton.setOnClickListener { showAddPageDialog() }
+        binding.pageSettingsButton.setOnClickListener { showPageSettingsDialog() }
         binding.gridView.onKeyTapped = { key -> showEditKeyDialog(key) }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.project.collect { project ->
+                    supportActionBar?.title = project?.name ?: getString(R.string.app_name)
+                }
+            }
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -50,6 +94,23 @@ class EditorActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.editor_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_project_settings -> {
+            showProjectSettingsDialog()
+            true
+        }
+        R.id.action_export -> {
+            runExport()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
+
     private fun showAddPageDialog() {
         val dialogBinding = DialogAddPageBinding.inflate(layoutInflater)
         AlertDialog.Builder(this)
@@ -62,6 +123,66 @@ class EditorActivity : AppCompatActivity() {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+    }
+
+    private fun showProjectSettingsDialog() {
+        val project = viewModel.project.value ?: return
+        val dialogBinding = DialogProjectSettingsBinding.inflate(layoutInflater)
+        dialogBinding.nameInput.setText(project.name)
+        setFontLabel(dialogBinding.fontPathLabel, project.defaultFontPath)
+
+        dialogBinding.pickFontButton.setOnClickListener {
+            pendingFontTarget = FontTarget.PROJECT
+            activeFontPathLabel = dialogBinding.fontPathLabel
+            pickFontLauncher.launch(arrayOf("*/*"))
+        }
+        dialogBinding.clearFontButton.setOnClickListener {
+            viewModel.setDefaultFontPath(null)
+            setFontLabel(dialogBinding.fontPathLabel, null)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.project_settings_title)
+            .setView(dialogBinding.root)
+            .setPositiveButton(R.string.save) { _, _ ->
+                val name = dialogBinding.nameInput.text?.toString()?.trim().orEmpty()
+                if (name.isNotEmpty()) viewModel.renameProject(name)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun showPageSettingsDialog() {
+        val page = viewModel.currentPage.value ?: return
+        val dialogBinding = DialogPageSettingsBinding.inflate(layoutInflater)
+        dialogBinding.rowsInput.setText(page.rows.toString())
+        dialogBinding.colsInput.setText(page.cols.toString())
+        setFontLabel(dialogBinding.fontPathLabel, page.fontPathOverride)
+
+        dialogBinding.pickFontButton.setOnClickListener {
+            pendingFontTarget = FontTarget.PAGE
+            activeFontPathLabel = dialogBinding.fontPathLabel
+            pickFontLauncher.launch(arrayOf("*/*"))
+        }
+        dialogBinding.clearFontButton.setOnClickListener {
+            viewModel.setCurrentPageFontOverride(null)
+            setFontLabel(dialogBinding.fontPathLabel, null)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.page_settings_title)
+            .setView(dialogBinding.root)
+            .setPositiveButton(R.string.save) { _, _ ->
+                val rows = dialogBinding.rowsInput.text?.toString()?.toIntOrNull() ?: page.rows
+                val cols = dialogBinding.colsInput.text?.toString()?.toIntOrNull() ?: page.cols
+                viewModel.resizeCurrentPage(rows.coerceIn(1, 32), cols.coerceIn(1, 32))
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun setFontLabel(label: TextView, path: String?) {
+        label.text = if (path == null) getString(R.string.font_path_none) else getString(R.string.font_path_set_format, File(path).name)
     }
 
     private fun showEditKeyDialog(key: KeyDef) {
@@ -99,6 +220,34 @@ class EditorActivity : AppCompatActivity() {
         dialogBinding.splitOutButton.setOnClickListener { viewModel.unmerge(owner.id); dialog.dismiss() }
 
         dialog.show()
+    }
+
+    private fun runExport() {
+        Toast.makeText(this, R.string.export_in_progress, Toast.LENGTH_SHORT).show()
+        viewModel.export { result ->
+            result.onSuccess { exportResult ->
+                lastExportUri = exportResult.downloadsUri
+                AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.export_success_format, exportResult.displayName))
+                    .setPositiveButton(R.string.install) { _, _ -> promptInstall(exportResult.downloadsUri) }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+            }.onFailure { error ->
+                Toast.makeText(this, getString(R.string.export_failure_format, error.message), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun promptInstall(uri: Uri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !packageManager.canRequestPackageInstalls()) {
+            startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:$packageName")))
+            return
+        }
+        val installIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/vnd.android.package-archive")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(installIntent)
     }
 
     companion object {

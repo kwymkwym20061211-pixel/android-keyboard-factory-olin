@@ -1,6 +1,7 @@
 package android.keyboard.factory.olin.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -16,6 +17,9 @@ interface KeyCellDao {
 
     @Update
     suspend fun updateAll(cells: List<KeyCellEntity>)
+
+    @Delete
+    suspend fun deleteAll(cells: List<KeyCellEntity>)
 
     @Query("SELECT * FROM key_cell WHERE pageId = :pageId ORDER BY row, col")
     fun observeForPage(pageId: Long): Flow<List<KeyCellEntity>>

@@ -7,12 +7,15 @@ import android.keyboard.engine.KeyRole
 import android.keyboard.engine.ShapeNormalizer
 import android.keyboard.factory.olin.data.KeyCellEntity
 import android.keyboard.factory.olin.data.KeyboardFactoryDatabase
+import android.keyboard.factory.olin.data.KeyboardProjectEntity
 import android.keyboard.factory.olin.data.KeyboardProjectRepository
 import android.keyboard.factory.olin.data.PageEntity
+import android.keyboard.factory.olin.export.KeyboardExportPipeline
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,6 +25,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EditorViewModel(application: Application, private val projectId: Long) : AndroidViewModel(application) {
 
@@ -29,6 +33,9 @@ class EditorViewModel(application: Application, private val projectId: Long) : A
     private val repository = KeyboardProjectRepository(db)
 
     private val currentPageIndex = MutableStateFlow(0)
+
+    val project: StateFlow<KeyboardProjectEntity?> = repository.observeProject(projectId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     val pages: StateFlow<List<PageEntity>> = repository.pagesOf(projectId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -77,6 +84,33 @@ class EditorViewModel(application: Application, private val projectId: Long) : A
             val states = cells.value.map { it.toCellState() }
             val updated = transform(states).map { it.toEntity(page.id) }
             db.keyCellDao().updateAll(updated)
+        }
+    }
+
+    fun renameProject(name: String) {
+        viewModelScope.launch { repository.renameProject(projectId, name) }
+    }
+
+    fun setDefaultFontPath(path: String?) {
+        viewModelScope.launch { repository.setDefaultFontPath(projectId, path) }
+    }
+
+    fun resizeCurrentPage(rows: Int, cols: Int) {
+        val page = currentPage.value ?: return
+        viewModelScope.launch { repository.resizePage(page.id, rows, cols) }
+    }
+
+    fun setCurrentPageFontOverride(path: String?) {
+        val page = currentPage.value ?: return
+        viewModelScope.launch { repository.setPageFontOverride(page.id, path) }
+    }
+
+    fun export(onResult: (Result<KeyboardExportPipeline.Result>) -> Unit) {
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching { KeyboardExportPipeline.export(getApplication(), projectId) }
+            }
+            onResult(result)
         }
     }
 

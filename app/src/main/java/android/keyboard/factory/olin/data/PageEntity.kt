@@ -23,5 +23,5 @@ data class PageEntity(
     val pageIndex: Int,
     val rows: Int,
     val cols: Int,
-    val fontUriOverride: String? = null,
+    val fontPathOverride: String? = null,
 )
