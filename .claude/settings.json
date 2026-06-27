@@ -46,6 +46,9 @@
       "Bash(xargs -0 -I{} sh -c 'git check-ignore -q \"{}\" && echo \"{}\"')",
       "Bash(grep -E \"\\(^|/\\)\\\\.gradle/|^local\\\\.properties$|\\\\.iml$|\\\\.idea/caches|\\\\.idea/libraries|\\\\.idea/\\(modules|workspace|navEditor|assetWizardSettings\\)\\\\.xml|\\\\.DS_Store$|\\\\.externalNativeBuild|\\\\.cxx|^captures/\")",
       "Bash(git rm *)",
+      "Bash(sort *)",
+      "Bash(./gradlew *)",
+      "Bash(grep *)",
       "Bash(awk '{print $1}')",
       "Bash(adb version *)",
       "Bash(adb kill-server *)",
@@ -60,7 +63,15 @@
       "Bash(adb shell *)",
       "Bash(adb exec-out *)",
       "Bash(adb uninstall *)",
-      "Bash(adb install *)"
+      "Bash(adb install *)",
+      "Bash(./gradlew :app:dependencies --configuration debugRuntimeClasspath --console=plain)",
+      "Bash(find ~/.gradle/caches -iname \"activity-1.13.0.jar\" 2>/dev/null | head -1)",
+      "Bash(find ~/.gradle/caches -ipath \"*androidx.activity*activity*1.13.0*\" -iname \"*.jar\" 2>/dev/null)",
+      "Bash(find ~/.gradle/caches -ipath \"*androidx.activity*\" -iname \"*.jar\" 2>/dev/null | grep -v sources)",
+      "Bash(unzip -o classes.jar androidx/activity/EdgeToEdge.class)",
+      "Bash(javap androidx/activity/EdgeToEdge.class)",
+      "Bash(./gradlew :app:dependencies --configuration debugCompileClasspath --console=plain)",
+      "Bash(./gradlew :app:compileDebugKotlin --console=plain --rerun)"
     ]
   }
 }
