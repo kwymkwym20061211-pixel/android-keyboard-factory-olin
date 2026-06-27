@@ -46,7 +46,12 @@
       "Bash(xargs -0 -I{} sh -c 'git check-ignore -q \"{}\" && echo \"{}\"')",
       "Bash(grep -E \"\\(^|/\\)\\\\.gradle/|^local\\\\.properties$|\\\\.iml$|\\\\.idea/caches|\\\\.idea/libraries|\\\\.idea/\\(modules|workspace|navEditor|assetWizardSettings\\)\\\\.xml|\\\\.DS_Store$|\\\\.externalNativeBuild|\\\\.cxx|^captures/\")",
       "Bash(git rm *)",
-      "Bash(awk '{print $1}')"
+      "Bash(awk '{print $1}')",
+      "Bash(adb version *)",
+      "Bash(adb kill-server *)",
+      "Bash(adb start-server *)",
+      "Bash(lsusb)",
+      "Bash(./gradlew :app:installDebug :keyboard-template:installDebug --console=plain)"
     ]
   }
 }
