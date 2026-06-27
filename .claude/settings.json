@@ -51,7 +51,16 @@
       "Bash(adb kill-server *)",
       "Bash(adb start-server *)",
       "Bash(lsusb)",
-      "Bash(./gradlew :app:installDebug :keyboard-template:installDebug --console=plain)"
+      "Bash(./gradlew :app:installDebug :keyboard-template:installDebug --console=plain)",
+      "Bash(./gradlew :app:assembleDebug :keyboard-template:assembleDebug --console=plain)",
+      "Bash(cat ~/adb_connect_usb.sh 2>&1)",
+      "Read(//home/user/**)",
+      "Bash(./gradlew :app:installDebug --console=plain)",
+      "Bash(./gradlew :app:testDebugUnitTest :app:assembleDebug --console=plain)",
+      "Bash(adb shell *)",
+      "Bash(adb exec-out *)",
+      "Bash(adb uninstall *)",
+      "Bash(adb install *)"
     ]
   }
 }

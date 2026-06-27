@@ -3,13 +3,11 @@
 
     <application
         android:allowBackup="false"
-        android:label="@string/app_name"
-        android:theme="@android:style/Theme.DeviceDefault">
+        android:label="@string/app_name">
 
         <service
             android:name=".GeneratedKeyboardService"
             android:exported="true"
-            android:label="@string/app_name"
             android:permission="android.permission.BIND_INPUT_METHOD">
             <intent-filter>
                 <action android:name="android.view.InputMethod" />

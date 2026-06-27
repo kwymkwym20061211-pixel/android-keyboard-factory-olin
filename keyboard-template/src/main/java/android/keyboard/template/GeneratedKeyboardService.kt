@@ -30,8 +30,14 @@ class GeneratedKeyboardService : InputMethodService() {
             onKeyTapped = ::handleKeyTapped
         }
         renderCurrentPage()
-        return gridView
+        return FixedHeightContainer(this, resources.getDimensionPixelSize(R.dimen.keyboard_height)).apply {
+            setContent(gridView)
+        }
     }
+
+    // A custom IME view has no inherent size hint for the framework, so without this it can be
+    // stretched to fill the whole screen instead of a normal keyboard-sized strip at the bottom.
+    override fun onEvaluateFullscreenMode(): Boolean = false
 
     private fun renderCurrentPage() {
         gridView.setPage(layout.pages[pageIndex])

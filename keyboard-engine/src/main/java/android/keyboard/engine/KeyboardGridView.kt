@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.Region
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -54,33 +55,48 @@ class KeyboardGridView @JvmOverloads constructor(
         textPaint.textSize = minOf(cellW, cellH) * 0.4f
 
         for (key in p.keys) {
-            val path = Path()
+            // Union the owned cells into one Region first so the boundary path traces only the
+            // outer outline of the (possibly non-rectangular) merge — no internal seams between
+            // the merged cells, regardless of how many of them there are.
+            val region = Region()
             for (cell in key.ownedCells) {
                 val (r, c) = cell[0] to cell[1]
-                path.addRect(
-                    c * cellW,
-                    r * cellH,
-                    (c + 1) * cellW,
-                    (r + 1) * cellH,
-                    Path.Direction.CW,
+                region.op(
+                    Rect((c * cellW).toInt(), (r * cellH).toInt(), ((c + 1) * cellW).toInt(), ((r + 1) * cellH).toInt()),
+                    Region.Op.UNION,
                 )
             }
+            val path = Path()
+            region.getBoundaryPath(path)
             canvas.drawPath(path, fillPaint)
             canvas.drawPath(path, strokePaint)
 
-            val bounds = RectF()
-            path.computeBounds(bounds, true)
+            // Center the label/image on the topmost-then-leftmost owned cell, not the bounding
+            // box of the whole merge: for an L-shape/staircase the bounding-box center can land
+            // outside the actual filled area (e.g. in the notch of an L), clipping the preview.
+            val anchor = key.ownedCells.minWith(compareBy({ it[0] }, { it[1] }))
+            val anchorBounds = RectF(
+                anchor[1] * cellW,
+                anchor[0] * cellH,
+                (anchor[1] + 1) * cellW,
+                (anchor[0] + 1) * cellH,
+            )
             val bitmap = key.image?.let { imageProvider?.getBitmap(it) }
             if (bitmap != null) {
                 val dst = Rect(
-                    bounds.left.toInt(),
-                    bounds.top.toInt(),
-                    bounds.right.toInt(),
-                    bounds.bottom.toInt(),
+                    anchorBounds.left.toInt(),
+                    anchorBounds.top.toInt(),
+                    anchorBounds.right.toInt(),
+                    anchorBounds.bottom.toInt(),
                 )
                 canvas.drawBitmap(bitmap, null, dst, null)
             } else {
-                canvas.drawText(labelFor(key), bounds.centerX(), bounds.centerY() - (textPaint.ascent() + textPaint.descent()) / 2, textPaint)
+                canvas.drawText(
+                    labelFor(key),
+                    anchorBounds.centerX(),
+                    anchorBounds.centerY() - (textPaint.ascent() + textPaint.descent()) / 2,
+                    textPaint,
+                )
             }
         }
     }

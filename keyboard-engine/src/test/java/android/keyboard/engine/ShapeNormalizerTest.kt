@@ -72,4 +72,53 @@ class ShapeNormalizerTest {
         val remainingMember = cells.first { it.id == 2L }
         assertEquals(0L, remainingMember.ownerId)
     }
+
+    @Test
+    fun `unmerge can split the group owner itself, re-electing a new owner among survivors`() {
+        var cells = grid(1, 3).map { if (it.id == 0L) it.copy(role = KeyRole.ENTER) else it }
+        cells = ShapeNormalizer.mergeInDirection(cells, activeCellId = 0L, direction = Direction.RIGHT) // 0+1
+        cells = ShapeNormalizer.mergeInDirection(cells, activeCellId = 1L, direction = Direction.RIGHT) // +2
+
+        // Splitting the owner (0) itself must not be a no-op: 1 should become the new owner.
+        cells = ShapeNormalizer.unmerge(cells, cellId = 0L)
+
+        val splitOut = cells.first { it.id == 0L }
+        assertNull(splitOut.ownerId)
+        assertEquals(KeyRole.NONE, splitOut.role)
+
+        val newOwner = cells.first { it.id == 1L }
+        assertNull(newOwner.ownerId)
+        assertEquals(KeyRole.ENTER, newOwner.role)
+        assertEquals(1L, cells.first { it.id == 2L }.ownerId)
+    }
+
+    @Test
+    fun `unmerge on an already-standalone cell is a no-op`() {
+        val cells = grid(2, 2)
+        val result = ShapeNormalizer.unmerge(cells, cellId = 0L)
+        assertEquals(cells, result)
+    }
+
+    @Test
+    fun `an L-shaped merge of b never touches the unrelated a cell`() {
+        // Layout (2x2): a b / b b -- ids 0=a(0,0) 1=b(0,1) 2=b(1,0) 3=b(1,1)
+        var cells = grid(2, 2).mapIndexed { index, cell ->
+            when (index.toLong()) {
+                0L -> cell.copy(role = KeyRole.CHAR, text = "a")
+                else -> cell.copy(role = KeyRole.CHAR, text = "b")
+            }
+        }
+        // Merge the three b-cells (1,2,3) together without ever touching cell 0.
+        cells = ShapeNormalizer.mergeInDirection(cells, activeCellId = 1L, direction = Direction.DOWN) // 1+3
+        cells = ShapeNormalizer.mergeInDirection(cells, activeCellId = 3L, direction = Direction.LEFT) // +2
+
+        val a = cells.first { it.id == 0L }
+        assertNull(a.ownerId)
+        assertEquals("a", a.text)
+
+        val bOwner = cells.first { it.id == 1L }
+        assertNull(bOwner.ownerId)
+        assertEquals("b", bOwner.text)
+        assertEquals(setOf(1L, 2L, 3L), cells.filter { (it.ownerId ?: it.id) == 1L }.map { it.id }.toSet())
+    }
 }

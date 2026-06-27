@@ -53,22 +53,25 @@ object ShapeNormalizer {
     }
 
     /** Splits [cellId] out of whatever merge group it belongs to, leaving it as a standalone
-     * NONE-role cell. The remaining group (if any) re-elects a topmost-leftmost owner. Has no
-     * effect if [cellId] is already an unmerged owner. */
+     * NONE-role cell. Works whether [cellId] is a plain member or the group's current owner —
+     * either way, the remaining members (if any) re-elect a topmost-leftmost owner and inherit
+     * the group's role/text. No-op if [cellId] is already a standalone group of one. */
     fun unmerge(cells: List<CellState>, cellId: Long): List<CellState> {
         val byId = cells.associateBy { it.id }
         val target = byId[cellId] ?: return cells
-        val ownerId = target.ownerId ?: return cells
-        val owner = byId[ownerId] ?: return cells
+        val groupOwnerId = target.ownerId ?: target.id
+        val owner = byId[groupOwnerId] ?: return cells
 
-        val remaining = cells.filter { (it.ownerId ?: it.id) == ownerId && it.id != cellId }
-        val newOwner = remaining.minWithOrNull(compareBy({ it.row }, { it.col }))
+        val remaining = cells.filter { (it.ownerId ?: it.id) == groupOwnerId && it.id != cellId }
+        if (remaining.isEmpty()) return cells // already standalone
+
+        val newOwner = remaining.minWith(compareBy({ it.row }, { it.col }))
 
         return cells.map { cell ->
             when {
                 cell.id == cellId -> cell.copy(ownerId = null, role = KeyRole.NONE, text = null)
-                newOwner != null && cell.id == newOwner.id -> cell.copy(ownerId = null, role = owner.role, text = owner.text)
-                newOwner != null && (cell.ownerId ?: cell.id) == ownerId -> cell.copy(ownerId = newOwner.id)
+                cell.id == newOwner.id -> cell.copy(ownerId = null, role = owner.role, text = owner.text)
+                (cell.ownerId ?: cell.id) == groupOwnerId -> cell.copy(ownerId = newOwner.id)
                 else -> cell
             }
         }

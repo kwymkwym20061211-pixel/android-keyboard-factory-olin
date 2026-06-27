@@ -1,10 +1,6 @@
 #!/bin/bash
 # android向けビルドスクリプト。debug/release/cancelを選択し、オプションでインストールも行う。
-# これ別のプロジェクトからパクってきたのでいらないオプションが多いかも。
-
-NDK_PATH="/home/user/android-sdk/ndk/28.2.13676358"
-LIB_NAME="libclang_rt.asan-aarch64-android.so"
-DEST="app/src/main/jniLibs/arm64-v8a"
+# これ別のプロジェクトからパクってきたので、ASan同期など不要なものは削ってあります。
 
 while true; do
     read -p "debug?release?cancel?(d/r/c) " choice
@@ -16,17 +12,13 @@ while true; do
 done
 
 if [ "$choice" = "d" ]; then
-    echo "Starting ASan lib sync."
-    mkdir -p "$DEST"
-    find "$NDK_PATH" -name "$LIB_NAME" -exec cp {} "$DEST/" \;
-    echo "ASan library synced."
     echo "Building Debug APK..."
-    GRADLE_TASK="assembleDebug"
-    GRADLE_OPTS="-PuseAsan=true"
+    GRADLE_TASK=":app:assembleDebug"
+    GRADLE_OPTS=""
     BUILD_TYPE="debug"
 else
     echo "Building Release APK..."
-    GRADLE_TASK="assembleRelease"
+    GRADLE_TASK=":app:assembleRelease"
     GRADLE_OPTS=""
     BUILD_TYPE="release"
 fi
@@ -40,7 +32,10 @@ echo "Build successful!"
 echo -n "Install to device?(y/n) "
 read install
 if [ "$install" = "y" ]; then
-    INSTALL_TASK="install${BUILD_TYPE^}"
+    # Scoped to :app only -- the root (unscoped) installDebug/installRelease task installs
+    # *every* application module, including :keyboard-template (an internal-only IME template
+    # that's bundled into :app's assets, never meant to be installed standalone).
+    INSTALL_TASK=":app:install${BUILD_TYPE^}"
     echo "Installing..."
     if ./gradlew "$INSTALL_TASK"; then
         echo "Install successful!"

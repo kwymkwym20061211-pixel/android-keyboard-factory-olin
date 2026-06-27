@@ -4,8 +4,9 @@
     <string name="delete">Delete</string>
     <string name="new_project_title">New keyboard</string>
     <string name="keyboard_name_hint">Keyboard name</string>
-    <string name="rows_hint">Rows (max 32)</string>
-    <string name="cols_hint">Columns (max 32)</string>
+    <string name="grid_size_explanation">Grid size for this keyboard page: how many rows and columns of keys it has (1–32 each). You can change individual keys\' roles and merge them afterward.</string>
+    <string name="rows_hint">Rows</string>
+    <string name="cols_hint">Columns</string>
     <string name="default_rows">4</string>
     <string name="default_cols">10</string>
     <string name="create">Create</string>
