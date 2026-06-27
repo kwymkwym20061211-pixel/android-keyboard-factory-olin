@@ -29,6 +29,10 @@ class KeyboardGridView @JvmOverloads constructor(
         style = Paint.Style.FILL
         color = Color.LTGRAY
     }
+    private val pressedFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = Color.GRAY
+    }
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 2f
@@ -39,8 +43,11 @@ class KeyboardGridView @JvmOverloads constructor(
         textAlign = Paint.Align.CENTER
     }
 
+    private var pressedKey: KeyDef? = null
+
     fun setPage(newPage: PageLayout) {
         page = newPage
+        pressedKey = null
         invalidate()
     }
 
@@ -68,7 +75,7 @@ class KeyboardGridView @JvmOverloads constructor(
             }
             val path = Path()
             region.getBoundaryPath(path)
-            canvas.drawPath(path, fillPaint)
+            canvas.drawPath(path, if (key == pressedKey) pressedFillPaint else fillPaint)
             canvas.drawPath(path, strokePaint)
 
             // Center the label/image on the topmost-then-leftmost owned cell, not the bounding
@@ -110,14 +117,34 @@ class KeyboardGridView @JvmOverloads constructor(
         KeyRole.NONE -> ""
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event.action != MotionEvent.ACTION_UP) return true
-        val p = page ?: return true
+    private fun resolveKeyAt(x: Float, y: Float): KeyDef? {
+        val p = page ?: return null
         val (cellW, cellH) = cellSize(p)
-        val col = (event.x / cellW).toInt().coerceIn(0, p.cols - 1)
-        val row = (event.y / cellH).toInt().coerceIn(0, p.rows - 1)
-        val key = p.keys.firstOrNull { k -> k.ownedCells.any { it[0] == row && it[1] == col } }
-        if (key != null) onKeyTapped?.invoke(key)
+        val col = (x / cellW).toInt().coerceIn(0, p.cols - 1)
+        val row = (y / cellH).toInt().coerceIn(0, p.rows - 1)
+        return p.keys.firstOrNull { k -> k.ownedCells.any { it[0] == row && it[1] == col } }
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.action) {
+            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                val key = resolveKeyAt(event.x, event.y)
+                if (key != pressedKey) {
+                    pressedKey = key
+                    invalidate()
+                }
+            }
+            MotionEvent.ACTION_UP -> {
+                val key = resolveKeyAt(event.x, event.y)
+                pressedKey = null
+                invalidate()
+                if (key != null) onKeyTapped?.invoke(key)
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                pressedKey = null
+                invalidate()
+            }
+        }
         return true
     }
 }
