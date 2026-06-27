@@ -8,6 +8,8 @@ on restart — `tmp/` survives because it's on the repo's filesystem. It's gitig
 
 Run `./clean_tmp.sh` any time to wipe and recreate it.
 
+Read `./README.md` to get summary of this product(please edit if needed)
+
 ## Building
 
 This is a multi-module Gradle project: `:app` (factory app), `:keyboard-engine` (shared
