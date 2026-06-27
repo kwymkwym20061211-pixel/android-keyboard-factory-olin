@@ -35,4 +35,5 @@ android {
 dependencies {
     implementation(project(":keyboard-engine"))
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.core.ktx)
 }
