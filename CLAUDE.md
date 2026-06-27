@@ -67,3 +67,29 @@ update work:
   again.** `adb shell ime set <id>`, `adb shell input tap <x> <y>`, `adb exec-out screencap -p`
   let Claude confirm a fix empirically without needing the user to manually retest every
   iteration — this is what found that the `LayoutParams` fix silently wasn't working.
+
+## 2026-06-27: post-MVP real-device polish round
+
+Full write-up: `docs/2026/06/post-mvp-real-device-polish.md`.
+
+- **Do not run `adb install` / `./gradlew installDebug` yourself.** It has failed when Claude
+  ran it (USB passthrough flakiness on this machine — see the adb section above). The user
+  installs and tests on the real device themselves now; Claude should stop at a successful
+  `:app:assembleDebug` and let them know it's ready.
+- **Targeting API 35+ forces edge-to-edge everywhere, including IME windows.** This is *why*
+  the generated keyboard's bottom row was getting hidden under the nav/gesture bar even after
+  the `FixedHeightContainer` height fix: the container's height was forced correctly, but nothing
+  accounted for the nav bar inset eating into it. Fixed by reading
+  `WindowInsetsCompat.Type.navigationBars()` inside `FixedHeightContainer` and shrinking the
+  *content* (not the container) by that inset, pinned to the top. The same forced edge-to-edge
+  also affects the factory app's own Activities (`ProjectListActivity`/`EditorActivity`) — they
+  need their own `ViewCompat.setOnApplyWindowInsetsListener` → `setPadding(systemBars)` on the
+  root view, which the original Android-Studio-generated `MainActivity.java` had and which got
+  dropped when those screens were rewritten. If a new Activity is added, give it the same
+  treatment or it'll draw under the status/nav bar.
+- **`androidx.activity.EdgeToEdge.enable(this)` fails to resolve under this project's AGP9
+  built-in-Kotlin setup**, even though the dependency resolves fine and the class genuinely
+  exists in the AAR (confirmed via `javap`). Root cause not found; not worth re-investigating
+  casually. Workaround: skip it — it's cosmetic (status bar icon color) on API 35+, where
+  edge-to-edge is forced regardless. The `WindowInsets` padding listener above is what actually
+  matters and works fine.
