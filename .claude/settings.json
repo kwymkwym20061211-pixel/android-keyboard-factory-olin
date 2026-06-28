@@ -5,7 +5,9 @@
       "Read(**)",
       "Edit(**)",
       "Write(**)",
+      "Read(tmp/**)",
       "Read(//tmp/**)",
+      "Edit(tmp/**)",
       "Edit(//tmp/**)",
       "Write(//tmp/**)",
       "WebSearch",
@@ -31,7 +33,10 @@
       "Bash(python3 -c *)",
       "Bash(./gradlew :app:assembleDebug)",
       "Bash(echo \"started with pid $!\")",
-      "Bash(dmesg)"
+      "Bash(dmesg)",
+      "Bash(xargs -I{} echo {})",
+      "Bash(./gradlew :keyboard-engine:testDebugUnitTest)",
+      "Bash(echo \"EXIT:$?\")"
     ],
     "deny": [
       "Bash(*git push*)"

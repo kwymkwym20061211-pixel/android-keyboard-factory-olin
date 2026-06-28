@@ -15,8 +15,10 @@ data class CellState(
 
 /** Implements the merge normalization rule: the topmost-then-leftmost cell of a merge group is
  * always the "owner" that carries [KeyRole]/text; every other member only records which owner it
- * belongs to. Merging/un-merging re-elects the owner from scratch so shapes stay consistent
- * however many times they're edited (including non-rectangular staircase/zigzag merges). */
+ * belongs to. Merging re-elects the owner from scratch so shapes stay consistent however many
+ * times they're edited (including non-rectangular staircase/zigzag merges). Un-merging always
+ * releases the whole group at once — there is no partial split, since once a group is
+ * non-rectangular there's no unambiguous way to decide which member "keeps" the merge. */
 object ShapeNormalizer {
 
     fun mergeInDirection(cells: List<CellState>, activeCellId: Long, direction: Direction): List<CellState> {
@@ -52,28 +54,18 @@ object ShapeNormalizer {
         }
     }
 
-    /** Splits [cellId] out of whatever merge group it belongs to, leaving it as a standalone
-     * NONE-role cell. Works whether [cellId] is a plain member or the group's current owner —
-     * either way, the remaining members (if any) re-elect a topmost-leftmost owner and inherit
-     * the group's role/text. No-op if [cellId] is already a standalone group of one. */
+    /** Releases every member of [cellId]'s merge group back to a standalone cell in one shot.
+     * The group's former owner keeps its [KeyRole]/text on its own cell; every other former
+     * member was already NONE-role (per the merge invariant) and simply becomes its own
+     * standalone owner. No-op if [cellId] is already a standalone group of one. */
     fun unmerge(cells: List<CellState>, cellId: Long): List<CellState> {
         val byId = cells.associateBy { it.id }
         val target = byId[cellId] ?: return cells
         val groupOwnerId = target.ownerId ?: target.id
-        val owner = byId[groupOwnerId] ?: return cells
 
-        val remaining = cells.filter { (it.ownerId ?: it.id) == groupOwnerId && it.id != cellId }
-        if (remaining.isEmpty()) return cells // already standalone
+        val groupMemberIds = cells.filter { (it.ownerId ?: it.id) == groupOwnerId }.map { it.id }.toSet()
+        if (groupMemberIds.size <= 1) return cells // already standalone
 
-        val newOwner = remaining.minWith(compareBy({ it.row }, { it.col }))
-
-        return cells.map { cell ->
-            when {
-                cell.id == cellId -> cell.copy(ownerId = null, role = KeyRole.NONE, text = null)
-                cell.id == newOwner.id -> cell.copy(ownerId = null, role = owner.role, text = owner.text)
-                (cell.ownerId ?: cell.id) == groupOwnerId -> cell.copy(ownerId = newOwner.id)
-                else -> cell
-            }
-        }
+        return cells.map { cell -> if (cell.id in groupMemberIds) cell.copy(ownerId = null) else cell }
     }
 }

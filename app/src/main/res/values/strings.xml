@@ -27,7 +27,8 @@
     <string name="merge_down">▼</string>
     <string name="merge_left">◀</string>
     <string name="merge_right">▶</string>
-    <string name="split_out">Split this cell out</string>
+    <string name="unmerge_all">Unmerge all</string>
+    <string name="unmerge_more_hint">To merge with more keys, select the key you want to add, then choose this key as its merge target from there.</string>
     <string name="save">Save</string>
     <string name="project_settings_title">Project settings</string>
     <string name="page_settings_title">Page settings</string>

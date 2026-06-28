@@ -54,42 +54,18 @@ class ShapeNormalizerTest {
     }
 
     @Test
-    fun `unmerge splits a member back out and preserves owner role on the remaining group`() {
-        var cells = grid(1, 3).map { if (it.id == 0L) it.copy(role = KeyRole.ENTER) else it }
-        cells = ShapeNormalizer.mergeInDirection(cells, activeCellId = 0L, direction = Direction.RIGHT) // 0+1
-        // Extend the group by merging from cell 1 (the edge of the current group) into cell 2.
-        cells = ShapeNormalizer.mergeInDirection(cells, activeCellId = 1L, direction = Direction.RIGHT)
-
-        cells = ShapeNormalizer.unmerge(cells, cellId = 1L)
-
-        val splitOut = cells.first { it.id == 1L }
-        assertNull(splitOut.ownerId)
-        assertEquals(KeyRole.NONE, splitOut.role)
-
-        val remainingOwner = cells.first { it.id == 0L }
-        assertNull(remainingOwner.ownerId)
-        assertEquals(KeyRole.ENTER, remainingOwner.role)
-        val remainingMember = cells.first { it.id == 2L }
-        assertEquals(0L, remainingMember.ownerId)
-    }
-
-    @Test
-    fun `unmerge can split the group owner itself, re-electing a new owner among survivors`() {
+    fun `unmerge releases every member of the group back to standalone cells, keeping the owner's role on its own cell`() {
         var cells = grid(1, 3).map { if (it.id == 0L) it.copy(role = KeyRole.ENTER) else it }
         cells = ShapeNormalizer.mergeInDirection(cells, activeCellId = 0L, direction = Direction.RIGHT) // 0+1
         cells = ShapeNormalizer.mergeInDirection(cells, activeCellId = 1L, direction = Direction.RIGHT) // +2
 
-        // Splitting the owner (0) itself must not be a no-op: 1 should become the new owner.
-        cells = ShapeNormalizer.unmerge(cells, cellId = 0L)
+        cells = ShapeNormalizer.unmerge(cells, cellId = 1L) // releasing from any member dissolves the whole group
 
-        val splitOut = cells.first { it.id == 0L }
-        assertNull(splitOut.ownerId)
-        assertEquals(KeyRole.NONE, splitOut.role)
-
-        val newOwner = cells.first { it.id == 1L }
-        assertNull(newOwner.ownerId)
-        assertEquals(KeyRole.ENTER, newOwner.role)
-        assertEquals(1L, cells.first { it.id == 2L }.ownerId)
+        cells.forEach { assertNull(it.ownerId) }
+        val owner = cells.first { it.id == 0L }
+        assertEquals(KeyRole.ENTER, owner.role)
+        assertEquals(KeyRole.NONE, cells.first { it.id == 1L }.role)
+        assertEquals(KeyRole.NONE, cells.first { it.id == 2L }.role)
     }
 
     @Test

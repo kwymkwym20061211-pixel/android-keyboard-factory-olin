@@ -18,6 +18,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -259,11 +260,17 @@ class EditorActivity : AppCompatActivity() {
             .setNegativeButton(R.string.cancel, null)
             .create()
 
+        // A cell already merged into a group of 2+ has no unambiguous "merge target" (which member's
+        // position should anchor the new direction?), so it can only release the whole group at once.
+        val isGrouped = viewModel.cells.value.count { (it.ownerCellId ?: it.id) == owner.id } > 1
+        dialogBinding.mergeSection.visibility = if (isGrouped) View.GONE else View.VISIBLE
+        dialogBinding.unmergeSection.visibility = if (isGrouped) View.VISIBLE else View.GONE
+
         dialogBinding.mergeUpButton.setOnClickListener { viewModel.mergeDirection(owner.id, Direction.UP); dialog.dismiss() }
         dialogBinding.mergeDownButton.setOnClickListener { viewModel.mergeDirection(owner.id, Direction.DOWN); dialog.dismiss() }
         dialogBinding.mergeLeftButton.setOnClickListener { viewModel.mergeDirection(owner.id, Direction.LEFT); dialog.dismiss() }
         dialogBinding.mergeRightButton.setOnClickListener { viewModel.mergeDirection(owner.id, Direction.RIGHT); dialog.dismiss() }
-        dialogBinding.splitOutButton.setOnClickListener { viewModel.unmerge(owner.id); dialog.dismiss() }
+        dialogBinding.unmergeAllButton.setOnClickListener { viewModel.unmerge(owner.id); dialog.dismiss() }
 
         dialog.show()
     }
