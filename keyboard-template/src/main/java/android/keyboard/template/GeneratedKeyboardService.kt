@@ -1,6 +1,7 @@
 package android.keyboard.template
 
 import android.graphics.Bitmap
+import android.graphics.Typeface
 import android.inputmethodservice.InputMethodService
 import android.view.View
 import android.view.inputmethod.InputConnection
@@ -16,6 +17,7 @@ import android.keyboard.engine.LayoutJson
 import android.keyboard.template.dictionary.data.DictionaryDatabase
 import android.keyboard.template.dictionary.data.DictionaryRepository
 import android.keyboard.template.dictionary.data.WordEntity
+import android.keyboard.template.font.FontImporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -33,6 +35,7 @@ class GeneratedKeyboardService : InputMethodService() {
     private var pageIndex = 0
     private lateinit var gridView: KeyboardGridView
     private var candidateContainer: LinearLayout? = null
+    private var candidateTypeface: Typeface? = null
 
     // The "reading" typed so far, not yet committed to the input field — shown as composing text
     // and used to look up dictionary candidates. Cleared on commit/confirm or on losing focus.
@@ -53,6 +56,8 @@ class GeneratedKeyboardService : InputMethodService() {
     }
 
     override fun onCreateInputView(): View {
+        candidateTypeface = FontImporter.currentFont(this)?.let { runCatching { Typeface.createFromFile(it) }.getOrNull() }
+
         gridView = KeyboardGridView(this).apply {
             imageProvider = AssetKeyImageProvider()
             onKeyTapped = ::handleKeyTapped
@@ -150,6 +155,7 @@ class GeneratedKeyboardService : InputMethodService() {
         for (word in candidates) {
             val chip = TextView(this).apply {
                 text = word.target
+                typeface = candidateTypeface
                 setPadding(hPadding, 0, hPadding, 0)
                 setOnClickListener {
                     ic.commitText(word.target, 1)

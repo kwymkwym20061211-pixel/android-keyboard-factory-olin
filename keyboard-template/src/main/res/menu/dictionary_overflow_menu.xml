@@ -3,4 +3,6 @@
     <item android:id="@+id/action_export" android:title="@string/menu_export" />
     <item android:id="@+id/action_import" android:title="@string/menu_import" />
     <item android:id="@+id/action_delete_dictionary" android:title="@string/menu_delete_dictionary" />
+    <item android:id="@+id/action_set_font" android:title="@string/menu_set_font" />
+    <item android:id="@+id/action_clear_font" android:title="@string/menu_clear_font" />
 </menu>

@@ -10,6 +10,7 @@ import android.keyboard.template.dictionary.csv.DictionaryCsvIo
 import android.keyboard.template.dictionary.data.DictionaryEntity
 import android.keyboard.template.dictionary.data.DictionaryError
 import android.keyboard.template.dictionary.data.WordEntity
+import android.keyboard.template.font.FontImporter
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -54,6 +55,14 @@ class DictionaryActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private val pickFontLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@registerForActivityResult
+        val fileName = FontImporter.displayName(this, uri) ?: getString(R.string.menu_set_font)
+        runCatching { FontImporter.import(this, uri, fileName) }
+            .onSuccess { Toast.makeText(this, getString(R.string.font_set_success_format, fileName), Toast.LENGTH_SHORT).show() }
+            .onFailure { error -> showError(getString(R.string.font_import_error_title), error.message.orEmpty()) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,23 +121,41 @@ class DictionaryActivity : AppCompatActivity() {
         binding.emptyStateText.visibility = if (empty) View.VISIBLE else View.GONE
         binding.wordList.visibility = if (empty) View.GONE else View.VISIBLE
         binding.addWordButton.visibility = if (empty) View.GONE else View.VISIBLE
-        binding.overflowMenuButton.isEnabled = !empty
     }
 
     private fun showOverflowMenu(anchor: View) {
-        val dictionary = dictionaries.firstOrNull { it.id == viewModel.selectedDictionaryId.value } ?: return
+        // Font actions don't depend on a dictionary existing, so unlike the dictionary-specific
+        // actions below, the menu itself must stay reachable even when `dictionaries` is empty.
+        val dictionary = dictionaries.firstOrNull { it.id == viewModel.selectedDictionaryId.value }
         PopupMenu(this, anchor).apply {
             menuInflater.inflate(R.menu.dictionary_overflow_menu, menu)
+            menu.findItem(R.id.action_export).isEnabled = dictionary != null
+            menu.findItem(R.id.action_delete_dictionary).isEnabled = dictionary != null
+            menu.findItem(R.id.action_clear_font).isEnabled = FontImporter.currentFont(this@DictionaryActivity) != null
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.action_export -> { runExport(); true }
                     R.id.action_import -> { importCsvLauncher.launch(arrayOf("*/*")); true }
-                    R.id.action_delete_dictionary -> { confirmDeleteDictionary(dictionary); true }
+                    R.id.action_delete_dictionary -> { dictionary?.let { confirmDeleteDictionary(it) }; true }
+                    R.id.action_set_font -> { pickFontLauncher.launch(arrayOf("*/*")); true }
+                    R.id.action_clear_font -> { confirmClearFont(); true }
                     else -> false
                 }
             }
             show()
         }
+    }
+
+    private fun confirmClearFont() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.clear_font_confirm_title)
+            .setMessage(R.string.clear_font_confirm_message)
+            .setPositiveButton(R.string.delete) { _, _ ->
+                FontImporter.clear(this)
+                Toast.makeText(this, R.string.font_cleared_success, Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun runExport() {

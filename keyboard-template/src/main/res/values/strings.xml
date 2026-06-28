@@ -22,9 +22,17 @@
     <string name="menu_export">エクスポート</string>
     <string name="menu_import">インポート</string>
     <string name="menu_delete_dictionary">この辞書を削除</string>
+    <string name="menu_set_font">フォントを設定</string>
+    <string name="menu_clear_font">フォントを削除</string>
 
     <string name="delete_dictionary_confirm_title">辞書を削除しますか?</string>
     <string name="delete_dictionary_confirm_message">「%1$s」を削除します。元に戻せません。</string>
+
+    <string name="clear_font_confirm_title">フォントを削除しますか?</string>
+    <string name="clear_font_confirm_message">候補の表示がデフォルトフォントに戻ります。</string>
+    <string name="font_set_success_format">フォントを設定しました: %1$s</string>
+    <string name="font_cleared_success">フォントを削除しました</string>
+    <string name="font_import_error_title">フォントを設定できません</string>
 
     <string name="import_error_title">インポートエラー</string>
     <string name="import_filename_unavailable">ファイル名を取得できませんでした</string>
