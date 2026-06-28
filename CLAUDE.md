@@ -95,3 +95,18 @@ Full write-up: `docs/2026/06/post-mvp-real-device-polish.md`.
   casually. Workaround: skip it — it's cosmetic (status bar icon color) on API 35+, where
   edge-to-edge is forced regardless. The `WindowInsets` padding listener above is what actually
   matters and works fine.
+
+## 2026-06-28: shared-storage output paths are duplicated across two modules
+
+Generated APKs and dictionary CSV exports both land in `Download/keyboard/` (a subfolder, not
+directly under `Download/`, to avoid cluttering the shared space) via
+`MediaStore.Downloads.RELATIVE_PATH`. This is implemented in **two separate places** that must be
+kept in sync by hand:
+- `:app`'s `DownloadsWriter.kt` (writes the exported keyboard APK)
+- `:keyboard-template`'s `DictionaryCsvIo.kt` (writes dictionary CSV exports from the *generated*
+  keyboard app)
+
+`:keyboard-template` can't depend on `:app`, so `DictionaryCsvIo` is a from-scratch equivalent of
+`DownloadsWriter`, not a shared call — there's no single source of truth. If the output directory
+(or any other shared-storage behavior) changes again, grep for `MediaStore.Downloads` and update
+both, plus the matching `export_success_format` string in both modules' `strings.xml`.

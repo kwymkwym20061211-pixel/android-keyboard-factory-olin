@@ -39,7 +39,7 @@
     <string name="clear_font">Clear</string>
     <string name="export_action">Export APK</string>
     <string name="export_in_progress">Exporting…</string>
-    <string name="export_success_format">Exported to Downloads/%1$s</string>
+    <string name="export_success_format">Exported to Downloads/keyboard/%1$s</string>
     <string name="export_failure_format">Export failed: %1$s</string>
     <string name="install">Install</string>
 </resources>

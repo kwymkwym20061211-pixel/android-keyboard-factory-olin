@@ -29,5 +29,5 @@
     <string name="import_error_title">インポートエラー</string>
     <string name="import_filename_unavailable">ファイル名を取得できませんでした</string>
     <string name="import_success_format">「%1$s」を読み込みました</string>
-    <string name="export_success_format">Downloads/%1$s に書き出しました</string>
+    <string name="export_success_format">Downloads/keyboard/%1$s に書き出しました</string>
 </resources>
