@@ -9,6 +9,7 @@
       "Read(//home/user/android-sdk/system-images/**)",
       "Read(//dev/**)",
       "Read(//proc/**)",
+      "Read(*)",
       "WebFetch(domain:mvnrepository.com)",
       "WebFetch(domain:search.maven.org)",
       "Bash(curl -s --max-time 15 \"https://search.maven.org/solrsearch/select?q=g:io.github.reandroid+AND+a:ARSCLib&core=gav&rows=5&wt=json\")",
@@ -71,7 +72,15 @@
       "Bash(unzip -o classes.jar androidx/activity/EdgeToEdge.class)",
       "Bash(javap androidx/activity/EdgeToEdge.class)",
       "Bash(./gradlew :app:dependencies --configuration debugCompileClasspath --console=plain)",
-      "Bash(./gradlew :app:compileDebugKotlin --console=plain --rerun)"
+      "Bash(./gradlew :app:compileDebugKotlin --console=plain --rerun)",
+      "Bash(nohup ./gradlew :keyboard-template:testDebugUnitTest)",
+      "Bash(echo \"started with pid $!\")",
+      "Bash(jobs -l)",
+      "Bash(nohup ./gradlew :keyboard-template:assembleDebug)",
+      "Bash(echo \"started pid $!\")",
+      "Bash(nohup ./gradlew :keyboard-template:assembleDebug :keyboard-template:testDebugUnitTest)",
+      "Bash(nohup ./gradlew :keyboard-template:assembleRelease)",
+      "Bash(nohup ./gradlew :app:assembleDebug)"
     ]
   }
 }

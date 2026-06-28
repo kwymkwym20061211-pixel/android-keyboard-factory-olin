@@ -1,4 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Generated Keyboard</string>
+
+    <string name="delete">削除</string>
+    <string name="cancel">キャンセル</string>
+    <string name="save">保存</string>
+    <string name="create">作成</string>
+    <string name="ok">OK</string>
+
+    <string name="no_dictionaries_message">辞書がありません。+で新規作成するか、メニューから辞書を読み込んでください。</string>
+    <string name="create_dictionary_title">新規辞書</string>
+    <string name="dictionary_name_hint">辞書名</string>
+    <string name="create_dictionary_error_title">辞書を作成できません</string>
+
+    <string name="add_word_title">単語を追加</string>
+    <string name="edit_word_title">単語を編集</string>
+    <string name="reading_hint">読み</string>
+    <string name="target_hint">変換先</string>
+
+    <string name="menu_button_description">メニュー</string>
+    <string name="menu_export">エクスポート</string>
+    <string name="menu_import">インポート</string>
+    <string name="menu_delete_dictionary">この辞書を削除</string>
+
+    <string name="delete_dictionary_confirm_title">辞書を削除しますか?</string>
+    <string name="delete_dictionary_confirm_message">「%1$s」を削除します。元に戻せません。</string>
+
+    <string name="import_error_title">インポートエラー</string>
+    <string name="import_filename_unavailable">ファイル名を取得できませんでした</string>
+    <string name="import_success_format">「%1$s」を読み込みました</string>
+    <string name="export_success_format">Downloads/%1$s に書き出しました</string>
 </resources>

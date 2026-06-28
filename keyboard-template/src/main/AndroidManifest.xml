@@ -5,6 +5,17 @@
         android:allowBackup="false"
         android:label="@string/app_name">
 
+        <activity
+            android:name=".dictionary.ui.DictionaryActivity"
+            android:exported="true"
+            android:theme="@style/Theme.KeyboardTemplate">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".GeneratedKeyboardService"
             android:exported="true"
