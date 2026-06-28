@@ -48,4 +48,47 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/app_icon_title"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/iconPreview"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/app_icon_title" />
+
+    <TextView
+        android:id="@+id/iconPathLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/pickIconButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/pick_icon" />
+
+        <Button
+            android:id="@+id/clearIconButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/clear_icon" />
+
+    </LinearLayout>
+
 </LinearLayout>

@@ -47,6 +47,7 @@ object KeyboardExportPipeline {
             newPackageName = applicationId,
             newLabel = project.name,
             extraAssets = extraAssets,
+            iconSourceFile = project.iconPath?.let(::File),
         )
 
         val (privateKey, certificate) = ApkSigningKeys.getOrCreate(signingKeyAlias)

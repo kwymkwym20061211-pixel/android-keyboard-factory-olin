@@ -104,6 +104,11 @@ class KeyboardProjectRepository(private val db: KeyboardFactoryDatabase) {
         db.keyboardProjectDao().update(project.copy(defaultFontPath = fontPath, updatedAt = System.currentTimeMillis()))
     }
 
+    suspend fun setIconPath(projectId: Long, iconPath: String?) {
+        val project = db.keyboardProjectDao().getById(projectId) ?: return
+        db.keyboardProjectDao().update(project.copy(iconPath = iconPath, updatedAt = System.currentTimeMillis()))
+    }
+
     suspend fun deleteProject(project: KeyboardProjectEntity) {
         db.keyboardProjectDao().delete(project)
     }

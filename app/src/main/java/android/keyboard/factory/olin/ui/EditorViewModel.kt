@@ -95,6 +95,10 @@ class EditorViewModel(application: Application, private val projectId: Long) : A
         viewModelScope.launch { repository.setDefaultFontPath(projectId, path) }
     }
 
+    fun setIconPath(path: String?) {
+        viewModelScope.launch { repository.setIconPath(projectId, path) }
+    }
+
     fun resizeCurrentPage(rows: Int, cols: Int) {
         val page = currentPage.value ?: return
         viewModelScope.launch { repository.resizePage(page.id, rows, cols) }

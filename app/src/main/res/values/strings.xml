@@ -37,6 +37,10 @@
     <string name="font_path_set_format">Font: %1$s</string>
     <string name="pick_font">Pick font file…</string>
     <string name="clear_font">Clear</string>
+    <string name="app_icon_title">App icon</string>
+    <string name="icon_not_set">No icon selected (using default)</string>
+    <string name="pick_icon">Pick image…</string>
+    <string name="clear_icon">Clear</string>
     <string name="export_action">Export APK</string>
     <string name="export_in_progress">Exporting…</string>
     <string name="export_success_format">Exported to Downloads/keyboard/%1$s</string>

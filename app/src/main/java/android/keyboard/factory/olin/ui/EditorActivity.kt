@@ -11,14 +11,17 @@ import android.keyboard.factory.olin.databinding.DialogEditKeyBinding
 import android.keyboard.factory.olin.databinding.DialogPageSettingsBinding
 import android.keyboard.factory.olin.databinding.DialogProjectSettingsBinding
 import android.keyboard.factory.olin.font.FontImporter
+import android.keyboard.factory.olin.icon.IconImporter
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -42,6 +45,8 @@ class EditorActivity : AppCompatActivity() {
 
     private var pendingFontTarget: FontTarget? = null
     private var activeFontPathLabel: TextView? = null
+    private var activeIconPreview: ImageView? = null
+    private var activeIconPathLabel: TextView? = null
     private var lastExportUri: Uri? = null
 
     private val pickFontLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -57,6 +62,13 @@ class EditorActivity : AppCompatActivity() {
             FontTarget.PAGE -> viewModel.setCurrentPageFontOverride(file.absolutePath)
         }
         activeFontPathLabel?.text = getString(R.string.font_path_set_format, file.name)
+    }
+
+    private val pickIconLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri == null) return@registerForActivityResult
+        val file = IconImporter.import(this, uri, "project_${projectId}_icon.png")
+        viewModel.setIconPath(file.absolutePath)
+        setIconPreview(activeIconPreview, activeIconPathLabel, file.absolutePath)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -149,6 +161,18 @@ class EditorActivity : AppCompatActivity() {
             setFontLabel(dialogBinding.fontPathLabel, null)
         }
 
+        activeIconPreview = dialogBinding.iconPreview
+        activeIconPathLabel = dialogBinding.iconPathLabel
+        setIconPreview(dialogBinding.iconPreview, dialogBinding.iconPathLabel, project.iconPath)
+
+        dialogBinding.pickIconButton.setOnClickListener {
+            pickIconLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+        dialogBinding.clearIconButton.setOnClickListener {
+            viewModel.setIconPath(null)
+            setIconPreview(dialogBinding.iconPreview, dialogBinding.iconPathLabel, null)
+        }
+
         AlertDialog.Builder(this)
             .setTitle(R.string.project_settings_title)
             .setView(dialogBinding.root)
@@ -191,6 +215,16 @@ class EditorActivity : AppCompatActivity() {
 
     private fun setFontLabel(label: TextView, path: String?) {
         label.text = if (path == null) getString(R.string.font_path_none) else getString(R.string.font_path_set_format, File(path).name)
+    }
+
+    private fun setIconPreview(preview: ImageView?, label: TextView?, path: String?) {
+        if (path == null) {
+            preview?.setImageDrawable(null)
+            label?.text = getString(R.string.icon_not_set)
+        } else {
+            preview?.setImageURI(Uri.fromFile(File(path)))
+            label?.text = ""
+        }
     }
 
     private fun showEditKeyDialog(key: KeyDef) {
