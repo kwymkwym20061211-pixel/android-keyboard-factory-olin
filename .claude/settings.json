@@ -86,7 +86,16 @@
       "Bash(python3 -c \"import PIL; print\\(PIL.__version__\\)\")",
       "Bash(./gradlew :app:processDebugResources)",
       "Bash(echo \"started PID $!\")",
-      "Bash(kill -0 17864)"
+      "Bash(kill -0 17864)",
+      "Bash(timeout 8 adb devices -l)",
+      "Bash(timeout 8 adb get-state)",
+      "Bash(adb tcpip *)",
+      "Bash(adb connect *)",
+      "Bash(chmod +x ~/adb_connect_wifi.sh)",
+      "Bash(~/adb_connect_wifi.sh)"
+    ],
+    "additionalDirectories": [
+      "/home/user"
     ]
   }
 }

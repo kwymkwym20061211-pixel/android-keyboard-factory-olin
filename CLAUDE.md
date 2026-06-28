@@ -40,6 +40,18 @@ restart — if `adb devices` comes up empty, run this first before assuming some
 wrong (e.g. an `EOFException`/`InstallException` mid-`adb install` usually just means the USB
 passthrough dropped mid-transfer; re-run the script and retry rather than debugging the build).
 
+To avoid the USB passthrough flakiness entirely, there's also:
+
+```
+~/adb_connect_wifi.sh
+```
+
+This runs `~/adb_connect_usb.sh` to get USB adb working first, then reads the phone's current
+`wlan0` IP over that USB connection and switches it to wireless adb (`adb tcpip 5555` +
+`adb connect <ip>:5555`). Once it's run, `adb`/`installDebug` traffic goes over WiFi instead of
+the USB passthrough — re-run it any time the phone reboots (wireless adb mode doesn't survive a
+reboot) or its WiFi IP changes (DHCP lease renewal).
+
 ## 2026-06-27: MVP reached — gotchas worth knowing before touching this code again
 
 Full write-up: `docs/2026/06/mvp-completion-and-troubleshooting.md`. The short version, for future
