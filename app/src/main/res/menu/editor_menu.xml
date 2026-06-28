@@ -14,4 +14,10 @@
         android:title="@string/export_action"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/action_export_project"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="@string/export_project_action"
+        app:showAsAction="never" />
+
 </menu>

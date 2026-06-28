@@ -11,6 +11,7 @@ import android.keyboard.factory.olin.data.KeyboardProjectEntity
 import android.keyboard.factory.olin.data.KeyboardProjectRepository
 import android.keyboard.factory.olin.data.PageEntity
 import android.keyboard.factory.olin.export.KeyboardExportPipeline
+import android.keyboard.factory.olin.exportimport.KeyboardProjectZipIo
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -113,6 +114,15 @@ class EditorViewModel(application: Application, private val projectId: Long) : A
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
                 runCatching { KeyboardExportPipeline.export(getApplication(), projectId) }
+            }
+            onResult(result)
+        }
+    }
+
+    fun exportProject(onResult: (Result<KeyboardProjectZipIo.ExportResult>) -> Unit) {
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching { KeyboardProjectZipIo.export(getApplication(), projectId) }
             }
             onResult(result)
         }

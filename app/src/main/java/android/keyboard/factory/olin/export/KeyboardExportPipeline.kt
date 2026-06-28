@@ -1,12 +1,12 @@
 package android.keyboard.factory.olin.export
 
 import android.content.Context
-import android.keyboard.engine.KeyDef
 import android.keyboard.engine.KeyRole
 import android.keyboard.engine.KeyboardLayout
 import android.keyboard.engine.LayoutJson
 import android.keyboard.engine.PageLayout
 import android.keyboard.factory.olin.data.KeyboardFactoryDatabase
+import android.keyboard.factory.olin.data.groupCellsIntoKeyDefs
 import android.keyboard.factory.olin.font.GlyphRenderer
 import android.net.Uri
 import java.io.File
@@ -78,23 +78,18 @@ object KeyboardExportPipeline {
     ): PageLayout {
         val cells = db.keyCellDao().getForPage(page.id)
         val fontFile = (page.fontPathOverride ?: projectDefaultFontPath)?.let { File(it) }
-        val byOwner = cells.groupBy { it.ownerCellId ?: it.id }
 
-        val keys = byOwner.map { (ownerId, members) ->
-            val owner = cells.first { it.id == ownerId }
-            val imageFileName = if (owner.role == KeyRole.CHAR && !owner.text.isNullOrEmpty()) {
-                "p${page.pageIndex}_${owner.row}_${owner.col}.png".also { fileName ->
-                    extraAssets["assets/key_images/$fileName"] = GlyphRenderer.renderPng(owner.text, fontFile)
+        val keys = groupCellsIntoKeyDefs(cells).map { key ->
+            val owner = key.ownedCells.minWith(compareBy({ it[0] }, { it[1] }))
+            val text = key.text
+            val imageFileName = if (key.role == KeyRole.CHAR && !text.isNullOrEmpty()) {
+                "p${page.pageIndex}_${owner[0]}_${owner[1]}.png".also { fileName ->
+                    extraAssets["assets/key_images/$fileName"] = GlyphRenderer.renderPng(text, fontFile)
                 }
             } else {
                 null
             }
-            KeyDef(
-                ownedCells = members.map { listOf(it.row, it.col) },
-                role = owner.role,
-                text = owner.text,
-                image = imageFileName,
-            )
+            key.copy(image = imageFileName)
         }
 
         return PageLayout(rows = page.rows, cols = page.cols, keys = keys)

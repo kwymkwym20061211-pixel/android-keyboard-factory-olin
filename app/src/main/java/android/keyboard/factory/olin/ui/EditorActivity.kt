@@ -128,6 +128,10 @@ class EditorActivity : AppCompatActivity() {
             runExport()
             true
         }
+        R.id.action_export_project -> {
+            runExportProject()
+            true
+        }
         else -> super.onOptionsItemSelected(item)
     }
 
@@ -274,6 +278,17 @@ class EditorActivity : AppCompatActivity() {
                     .setPositiveButton(R.string.install) { _, _ -> promptInstall(exportResult.downloadsUri) }
                     .setNegativeButton(R.string.cancel, null)
                     .show()
+            }.onFailure { error ->
+                Toast.makeText(this, getString(R.string.export_failure_format, error.message), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun runExportProject() {
+        Toast.makeText(this, R.string.export_in_progress, Toast.LENGTH_SHORT).show()
+        viewModel.exportProject { result ->
+            result.onSuccess { exportResult ->
+                Toast.makeText(this, getString(R.string.export_success_format, exportResult.displayName), Toast.LENGTH_LONG).show()
             }.onFailure { error ->
                 Toast.makeText(this, getString(R.string.export_failure_format, error.message), Toast.LENGTH_LONG).show()
             }

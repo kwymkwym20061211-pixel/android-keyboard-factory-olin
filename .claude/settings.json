@@ -28,7 +28,9 @@
       "Read(//proc/**)",
       "Skill(update-config)",
       "Skill(update-config:*)",
-      "Bash(python3 -c *)"
+      "Bash(python3 -c *)",
+      "Bash(./gradlew :app:assembleDebug)",
+      "Bash(echo \"started with pid $!\")"
     ],
     "deny": [
       "Bash(*git push*)"

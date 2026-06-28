@@ -16,11 +16,29 @@
         <activity
             android:name=".ui.ProjectListActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.AndroidKeyboardFactory">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Best-effort: lets a file manager's "open with" launch import for a tapped
+                 .keyboard file. .keyboard has no MIME type registered with Android, so which of
+                 these a given file manager actually matches (mimeType vs. pathPattern, and what
+                 URI scheme/shape it hands off) varies; this is not guaranteed on every device. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.keyboard" />
+                <data android:host="*" />
             </intent-filter>
         </activity>
         <activity

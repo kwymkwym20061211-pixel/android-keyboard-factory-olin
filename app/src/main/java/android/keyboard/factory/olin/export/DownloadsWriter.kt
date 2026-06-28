@@ -9,11 +9,14 @@ import java.io.File
 
 object DownloadsWriter {
 
-    fun writeApk(context: Context, sourceFile: File, displayName: String): Uri {
+    fun writeApk(context: Context, sourceFile: File, displayName: String): Uri =
+        write(context, sourceFile, displayName, "application/vnd.android.package-archive")
+
+    fun write(context: Context, sourceFile: File, displayName: String, mimeType: String): Uri {
         val resolver = context.contentResolver
         val values = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, displayName)
-            put(MediaStore.Downloads.MIME_TYPE, "application/vnd.android.package-archive")
+            put(MediaStore.Downloads.MIME_TYPE, mimeType)
             put(MediaStore.Downloads.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/keyboard")
         }
         val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)

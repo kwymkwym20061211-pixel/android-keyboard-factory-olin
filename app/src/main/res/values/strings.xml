@@ -46,4 +46,8 @@
     <string name="export_success_format">Exported to Downloads/keyboard/%1$s</string>
     <string name="export_failure_format">Export failed: %1$s</string>
     <string name="install">Install</string>
+    <string name="export_project_action">Export project data</string>
+    <string name="import_project_button">Import project</string>
+    <string name="import_project_failure_format">Import failed: %1$s</string>
 </resources>
+

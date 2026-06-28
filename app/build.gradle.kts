@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -45,6 +46,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.core.ktx)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.arsclib)
     implementation(libs.apksig)
     implementation(libs.room.runtime)
