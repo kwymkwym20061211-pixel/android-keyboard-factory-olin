@@ -1,5 +1,6 @@
 package android.keyboard.template.dictionary.ui
 
+import android.keyboard.template.CacheCleanup
 import android.keyboard.template.R
 import android.keyboard.template.databinding.ActivityDictionaryBinding
 import android.keyboard.template.databinding.DialogCreateDictionaryBinding
@@ -55,6 +56,7 @@ class DictionaryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CacheCleanup.clearOnce(this)
         binding = ActivityDictionaryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

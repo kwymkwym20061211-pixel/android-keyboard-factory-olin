@@ -30,7 +30,8 @@
       "Skill(update-config:*)",
       "Bash(python3 -c *)",
       "Bash(./gradlew :app:assembleDebug)",
-      "Bash(echo \"started with pid $!\")"
+      "Bash(echo \"started with pid $!\")",
+      "Bash(dmesg)"
     ],
     "deny": [
       "Bash(*git push*)"
