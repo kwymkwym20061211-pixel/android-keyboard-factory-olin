@@ -12,12 +12,12 @@ class DictionaryRepository(private val db: DictionaryDatabase) {
 
     suspend fun createDictionary(name: String): Result<Long> {
         val trimmed = name.trim()
-        if (trimmed.isEmpty()) return Result.failure(IllegalArgumentException("辞書名を入力してください"))
+        if (trimmed.isEmpty()) return Result.failure(DictionaryError.EmptyName)
         DictionaryCsv.invalidFileNameChar(trimmed)?.let {
-            return Result.failure(IllegalArgumentException("辞書名に使えない文字が含まれています($it)"))
+            return Result.failure(DictionaryError.InvalidNameChar(it))
         }
         if (db.dictionaryDao().findByName(trimmed) != null) {
-            return Result.failure(IllegalStateException("「$trimmed」という辞書は既に存在します"))
+            return Result.failure(DictionaryError.DuplicateName(trimmed))
         }
         return Result.success(db.dictionaryDao().insert(DictionaryEntity(name = trimmed)))
     }
@@ -28,7 +28,7 @@ class DictionaryRepository(private val db: DictionaryDatabase) {
 
     suspend fun addWord(dictionaryId: Long, reading: String, target: String): Result<Long> {
         if (reading.isBlank() || target.isBlank()) {
-            return Result.failure(IllegalArgumentException("読みと変換先を入力してください"))
+            return Result.failure(DictionaryError.EmptyWordFields)
         }
         return Result.success(db.wordDao().insert(WordEntity(dictionaryId = dictionaryId, reading = reading, target = target)))
     }
@@ -45,15 +45,15 @@ class DictionaryRepository(private val db: DictionaryDatabase) {
      * dictionary and all its words in one transaction (no partial import on failure). */
     suspend fun importCsv(fileName: String, content: String): Result<Long> {
         val name = DictionaryCsv.dictionaryNameFromFileName(fileName)
-            ?: return Result.failure(IllegalArgumentException("ファイル名は.csvで終わる必要があります"))
+            ?: return Result.failure(DictionaryError.InvalidCsvFileName)
         DictionaryCsv.invalidFileNameChar(name)?.let {
-            return Result.failure(IllegalArgumentException("辞書名に使えない文字が含まれています($it)"))
+            return Result.failure(DictionaryError.InvalidNameChar(it))
         }
         if (db.dictionaryDao().findByName(name) != null) {
-            return Result.failure(IllegalStateException("「$name」という辞書は既に存在します"))
+            return Result.failure(DictionaryError.DuplicateName(name))
         }
         val rows = when (val result = DictionaryCsv.decode(content)) {
-            is DictionaryCsv.ParseResult.Error -> return Result.failure(IllegalArgumentException("${result.lineNumber}行目: ${result.message}"))
+            is DictionaryCsv.ParseResult.Error -> return Result.failure(DictionaryError.CsvParseError(result.lineNumber, result.reason))
             is DictionaryCsv.ParseResult.Success -> result.rows
         }
         val dictionaryId = db.withTransaction {

@@ -30,4 +30,14 @@
     <string name="import_filename_unavailable">ファイル名を取得できませんでした</string>
     <string name="import_success_format">「%1$s」を読み込みました</string>
     <string name="export_success_format">Downloads/keyboard/%1$s に書き出しました</string>
+
+    <string name="error_dictionary_name_required">辞書名を入力してください</string>
+    <string name="error_dictionary_name_invalid_char">辞書名に使えない文字が含まれています(%1$s)</string>
+    <string name="error_dictionary_name_duplicate">「%1$s」という辞書は既に存在します</string>
+    <string name="error_word_fields_required">読みと変換先を入力してください</string>
+    <string name="error_csv_filename_must_end_with_csv">ファイル名は.csvで終わる必要があります</string>
+    <string name="error_csv_parse_line_prefix">%1$d行目: %2$s</string>
+    <string name="error_csv_trailing_backslash">末尾が\\で終わっています</string>
+    <string name="error_csv_wrong_column_count">列数が2ではありません(%1$d列)</string>
+    <string name="error_csv_empty_field">読みまたは変換先が空です</string>
 </resources>

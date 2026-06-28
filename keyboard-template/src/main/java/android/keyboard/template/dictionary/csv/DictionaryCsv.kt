@@ -9,8 +9,18 @@ object DictionaryCsv {
 
     sealed class ParseResult {
         data class Success(val rows: List<Pair<String, String>>) : ParseResult()
-        data class Error(val lineNumber: Int, val message: String) : ParseResult()
+        data class Error(val lineNumber: Int, val reason: CsvErrorReason) : ParseResult()
     }
+
+    /** Cause of a [ParseResult.Error], kept free of any user-facing text so the UI layer can
+     * resolve it to a localized string. */
+    sealed class CsvErrorReason {
+        object TrailingBackslash : CsvErrorReason()
+        data class WrongColumnCount(val count: Int) : CsvErrorReason()
+        object EmptyField : CsvErrorReason()
+    }
+
+    private class TrailingBackslashException : Exception()
 
     private val INVALID_FILE_NAME_CHARS = charArrayOf('\\', '/', ':', '*', '?', '"', '<', '>', '|')
 
@@ -24,15 +34,15 @@ object DictionaryCsv {
             val lineNumber = index + 1
             val fields = try {
                 splitEscaped(line)
-            } catch (e: IllegalArgumentException) {
-                return ParseResult.Error(lineNumber, e.message ?: "不正な形式です")
+            } catch (e: TrailingBackslashException) {
+                return ParseResult.Error(lineNumber, CsvErrorReason.TrailingBackslash)
             }
             if (fields.size != 2) {
-                return ParseResult.Error(lineNumber, "列数が2ではありません(${fields.size}列)")
+                return ParseResult.Error(lineNumber, CsvErrorReason.WrongColumnCount(fields.size))
             }
             val (reading, target) = fields
             if (reading.isEmpty() || target.isEmpty()) {
-                return ParseResult.Error(lineNumber, "読みまたは変換先が空です")
+                return ParseResult.Error(lineNumber, CsvErrorReason.EmptyField)
             }
             rows.add(reading to target)
         }
@@ -61,7 +71,7 @@ object DictionaryCsv {
         while (i < line.length) {
             when (val c = line[i]) {
                 '\\' -> {
-                    if (i + 1 >= line.length) throw IllegalArgumentException("末尾が\\で終わっています")
+                    if (i + 1 >= line.length) throw TrailingBackslashException()
                     current.append(line[i + 1])
                     i += 2
                 }

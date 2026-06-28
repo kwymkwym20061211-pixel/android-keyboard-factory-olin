@@ -5,8 +5,10 @@ import android.keyboard.template.R
 import android.keyboard.template.databinding.ActivityDictionaryBinding
 import android.keyboard.template.databinding.DialogCreateDictionaryBinding
 import android.keyboard.template.databinding.DialogEditWordBinding
+import android.keyboard.template.dictionary.csv.DictionaryCsv
 import android.keyboard.template.dictionary.csv.DictionaryCsvIo
 import android.keyboard.template.dictionary.data.DictionaryEntity
+import android.keyboard.template.dictionary.data.DictionaryError
 import android.keyboard.template.dictionary.data.WordEntity
 import android.os.Bundle
 import android.view.View
@@ -48,7 +50,7 @@ class DictionaryActivity : AppCompatActivity() {
                 result.onSuccess {
                     Toast.makeText(this@DictionaryActivity, getString(R.string.import_success_format, fileName), Toast.LENGTH_SHORT).show()
                 }.onFailure { error ->
-                    showError(getString(R.string.import_error_title), error.message.orEmpty())
+                    showError(getString(R.string.import_error_title), errorMessage(error))
                 }
             }
         }
@@ -155,7 +157,7 @@ class DictionaryActivity : AppCompatActivity() {
             .setPositiveButton(R.string.create) { _, _ ->
                 val name = dialogBinding.nameInput.text?.toString().orEmpty()
                 viewModel.createDictionary(name) { result ->
-                    result.onFailure { error -> showError(getString(R.string.create_dictionary_error_title), error.message.orEmpty()) }
+                    result.onFailure { error -> showError(getString(R.string.create_dictionary_error_title), errorMessage(error)) }
                 }
             }
             .setNegativeButton(R.string.cancel, null)
@@ -171,7 +173,7 @@ class DictionaryActivity : AppCompatActivity() {
                 val reading = dialogBinding.readingInput.text?.toString().orEmpty()
                 val target = dialogBinding.targetInput.text?.toString().orEmpty()
                 viewModel.addWord(reading, target) { result ->
-                    result.onFailure { error -> showError(getString(R.string.add_word_title), error.message.orEmpty()) }
+                    result.onFailure { error -> showError(getString(R.string.add_word_title), errorMessage(error)) }
                 }
             }
             .setNegativeButton(R.string.cancel, null)
@@ -202,5 +204,22 @@ class DictionaryActivity : AppCompatActivity() {
             .setMessage(message)
             .setPositiveButton(R.string.ok, null)
             .show()
+    }
+
+    private fun errorMessage(error: Throwable): String = when (error) {
+        is DictionaryError.EmptyName -> getString(R.string.error_dictionary_name_required)
+        is DictionaryError.InvalidNameChar -> getString(R.string.error_dictionary_name_invalid_char, error.char.toString())
+        is DictionaryError.DuplicateName -> getString(R.string.error_dictionary_name_duplicate, error.name)
+        is DictionaryError.EmptyWordFields -> getString(R.string.error_word_fields_required)
+        is DictionaryError.InvalidCsvFileName -> getString(R.string.error_csv_filename_must_end_with_csv)
+        is DictionaryError.CsvParseError ->
+            getString(R.string.error_csv_parse_line_prefix, error.lineNumber, csvErrorReasonMessage(error.reason))
+        else -> error.message.orEmpty()
+    }
+
+    private fun csvErrorReasonMessage(reason: DictionaryCsv.CsvErrorReason): String = when (reason) {
+        is DictionaryCsv.CsvErrorReason.TrailingBackslash -> getString(R.string.error_csv_trailing_backslash)
+        is DictionaryCsv.CsvErrorReason.WrongColumnCount -> getString(R.string.error_csv_wrong_column_count, reason.count)
+        is DictionaryCsv.CsvErrorReason.EmptyField -> getString(R.string.error_csv_empty_field)
     }
 }
