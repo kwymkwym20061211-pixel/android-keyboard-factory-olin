@@ -80,7 +80,13 @@
       "Bash(echo \"started pid $!\")",
       "Bash(nohup ./gradlew :keyboard-template:assembleDebug :keyboard-template:testDebugUnitTest)",
       "Bash(nohup ./gradlew :keyboard-template:assembleRelease)",
-      "Bash(nohup ./gradlew :app:assembleDebug)"
+      "Bash(nohup ./gradlew :app:assembleDebug)",
+      "Bash(python3 -c \"import cairosvg\")",
+      "Bash(python3)",
+      "Bash(python3 -c \"import PIL; print\\(PIL.__version__\\)\")",
+      "Bash(./gradlew :app:processDebugResources)",
+      "Bash(echo \"started PID $!\")",
+      "Bash(kill -0 17864)"
     ]
   }
 }
