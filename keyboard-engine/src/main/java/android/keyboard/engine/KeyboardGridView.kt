@@ -8,6 +8,7 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Region
+import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -42,6 +43,16 @@ class KeyboardGridView @JvmOverloads constructor(
         color = Color.BLACK
         textAlign = Paint.Align.CENTER
     }
+
+    /** Font used to draw CHAR-role key labels here in the editor preview. The generated keyboard
+     * app instead bakes each label into a bitmap via GlyphRenderer at export time and draws that
+     * through [imageProvider], so it never needs this — this exists for the live preview only. */
+    var typeface: Typeface?
+        get() = textPaint.typeface
+        set(value) {
+            textPaint.typeface = value
+            invalidate()
+        }
 
     private var pressedKey: KeyDef? = null
 

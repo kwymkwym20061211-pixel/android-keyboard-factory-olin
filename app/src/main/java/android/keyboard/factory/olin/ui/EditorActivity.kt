@@ -1,6 +1,7 @@
 package android.keyboard.factory.olin.ui
 
 import android.content.Intent
+import android.graphics.Typeface
 import android.keyboard.engine.Direction
 import android.keyboard.engine.KeyDef
 import android.keyboard.engine.KeyRole
@@ -10,6 +11,7 @@ import android.keyboard.factory.olin.databinding.DialogAddPageBinding
 import android.keyboard.factory.olin.databinding.DialogEditKeyBinding
 import android.keyboard.factory.olin.databinding.DialogPageSettingsBinding
 import android.keyboard.factory.olin.databinding.DialogProjectSettingsBinding
+import android.keyboard.factory.olin.databinding.DialogUnicodeInputBinding
 import android.keyboard.factory.olin.font.FontImporter
 import android.keyboard.factory.olin.icon.IconImporter
 import android.net.Uri
@@ -111,6 +113,14 @@ class EditorActivity : AppCompatActivity() {
                         binding.gridView.setPage(toPageLayout(page, cells))
                     }
                 }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                combine(viewModel.currentPage, viewModel.project) { page, project ->
+                    page?.fontPathOverride ?: project?.defaultFontPath
+                }.collect { fontPath -> binding.gridView.typeface = resolveTypeface(fontPath) }
             }
         }
     }
@@ -232,9 +242,20 @@ class EditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun resolveTypeface(fontPath: String?): Typeface =
+        fontPath
+            ?.let { File(it) }
+            ?.takeIf { it.exists() }
+            ?.let { runCatching { Typeface.createFromFile(it) }.getOrNull() }
+            ?: Typeface.DEFAULT
+
+    private fun currentPageTypeface(): Typeface =
+        resolveTypeface(viewModel.currentPage.value?.fontPathOverride ?: viewModel.project.value?.defaultFontPath)
+
     private fun showEditKeyDialog(key: KeyDef) {
         val owner = ownerOf(key, viewModel.cells.value)
         val dialogBinding = DialogEditKeyBinding.inflate(layoutInflater)
+        val pageTypeface = currentPageTypeface()
 
         val roleToButtonId = mapOf(
             KeyRole.CHAR to dialogBinding.roleChar.id,
@@ -245,10 +266,16 @@ class EditorActivity : AppCompatActivity() {
             KeyRole.NONE to dialogBinding.roleNone.id,
         )
         dialogBinding.roleGroup.check(roleToButtonId.getValue(owner.role))
+        dialogBinding.charTextInput.typeface = pageTypeface
         dialogBinding.charTextInput.setText(owner.text.orEmpty())
         dialogBinding.charTextInput.isEnabled = owner.role == KeyRole.CHAR
+        dialogBinding.unicodeInputButton.isEnabled = owner.role == KeyRole.CHAR
         dialogBinding.roleGroup.setOnCheckedChangeListener { _, checkedId ->
             dialogBinding.charTextInput.isEnabled = checkedId == dialogBinding.roleChar.id
+            dialogBinding.unicodeInputButton.isEnabled = checkedId == dialogBinding.roleChar.id
+        }
+        dialogBinding.unicodeInputButton.setOnClickListener {
+            showUnicodeInputDialog(pageTypeface) { char -> dialogBinding.charTextInput.append(char) }
         }
 
         val dialog = AlertDialog.Builder(this)
@@ -272,6 +299,50 @@ class EditorActivity : AppCompatActivity() {
         dialogBinding.mergeRightButton.setOnClickListener { viewModel.mergeDirection(owner.id, Direction.RIGHT); dialog.dismiss() }
         dialogBinding.unmergeAllButton.setOnClickListener { viewModel.unmerge(owner.id); dialog.dismiss() }
 
+        dialog.show()
+    }
+
+    private fun showUnicodeInputDialog(typeface: Typeface, onConfirm: (String) -> Unit) {
+        val dialogBinding = DialogUnicodeInputBinding.inflate(layoutInflater)
+        dialogBinding.unicodePreview.typeface = typeface
+
+        var codePoint = 0
+        fun refresh() {
+            val isValid = Character.isValidCodePoint(codePoint)
+            dialogBinding.unicodeHexDisplay.text = getString(R.string.unicode_hex_format, "%06X".format(codePoint))
+            dialogBinding.unicodePreview.text = if (isValid) String(Character.toChars(codePoint)) else ""
+            dialogBinding.unicodeEnterButton.isEnabled = isValid
+        }
+        refresh()
+
+        val digitButtons = listOf(
+            dialogBinding.hexButton0 to 0x0, dialogBinding.hexButton1 to 0x1,
+            dialogBinding.hexButton2 to 0x2, dialogBinding.hexButton3 to 0x3,
+            dialogBinding.hexButton4 to 0x4, dialogBinding.hexButton5 to 0x5,
+            dialogBinding.hexButton6 to 0x6, dialogBinding.hexButton7 to 0x7,
+            dialogBinding.hexButton8 to 0x8, dialogBinding.hexButton9 to 0x9,
+            dialogBinding.hexButtonA to 0xA, dialogBinding.hexButtonB to 0xB,
+            dialogBinding.hexButtonC to 0xC, dialogBinding.hexButtonD to 0xD,
+            dialogBinding.hexButtonE to 0xE, dialogBinding.hexButtonF to 0xF,
+        )
+        digitButtons.forEach { (button, digit) ->
+            button.setOnClickListener {
+                codePoint = ((codePoint shl 4) or digit) and CODE_POINT_HEX_MASK
+                refresh()
+            }
+        }
+        dialogBinding.unicodeDeleteButton.setOnClickListener {
+            codePoint = codePoint ushr 4
+            refresh()
+        }
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogBinding.root)
+            .create()
+        dialogBinding.unicodeEnterButton.setOnClickListener {
+            onConfirm(String(Character.toChars(codePoint)))
+            dialog.dismiss()
+        }
         dialog.show()
     }
 
@@ -316,5 +387,8 @@ class EditorActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_PROJECT_ID = "project_id"
+
+        // 6 hex digits (24 bits) covers every valid Unicode code point (max U+10FFFF).
+        private const val CODE_POINT_HEX_MASK = 0xFFFFFF
     }
 }

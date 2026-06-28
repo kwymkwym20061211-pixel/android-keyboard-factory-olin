@@ -1,4 +1,7 @@
 <resources>
     <string name="unmerge_all">結合をすべて解除</string>
     <string name="unmerge_more_hint">さらにたくさん結合したい場合は結合したいグリッドを選択してそちらからこちらを結合先に選択してください</string>
+    <string name="unicode_input_button">unicodeコードポイントを手入力する</string>
+    <string name="unicode_delete_button">削除</string>
+    <string name="unicode_enter_button">確定</string>
 </resources>

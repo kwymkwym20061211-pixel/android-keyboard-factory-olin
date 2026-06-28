@@ -10,6 +10,8 @@
       "Edit(tmp/**)",
       "Edit(//tmp/**)",
       "Write(//tmp/**)",
+      "Edit(//dev/null/)",
+      "Read(//dev/null/)",
       "WebSearch",
       "WebFetch(domain:mvnrepository.com)",
       "WebFetch(domain:search.maven.org)",
@@ -36,7 +38,9 @@
       "Bash(dmesg)",
       "Bash(xargs -I{} echo {})",
       "Bash(./gradlew :keyboard-engine:testDebugUnitTest)",
-      "Bash(echo \"EXIT:$?\")"
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(kill 16076)",
+      "Bash(pkill -f \"gradlew :app:assembleDebug\")"
     ],
     "deny": [
       "Bash(*git push*)"
