@@ -40,7 +40,9 @@
       "Bash(./gradlew :keyboard-engine:testDebugUnitTest)",
       "Bash(echo \"EXIT:$?\")",
       "Bash(kill 16076)",
-      "Bash(pkill -f \"gradlew :app:assembleDebug\")"
+      "Bash(pkill -f \"gradlew :app:assembleDebug\")",
+      "Read(//home/user/**)",
+      "Bash(bash -n /home/user/dev/android-keyboard-factory-olin/build.sh)"
     ],
     "deny": [
       "Bash(*git push*)"

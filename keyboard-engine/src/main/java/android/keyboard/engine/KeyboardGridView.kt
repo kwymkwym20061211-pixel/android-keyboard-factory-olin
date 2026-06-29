@@ -56,6 +56,15 @@ class KeyboardGridView @JvmOverloads constructor(
 
     private var pressedKey: KeyDef? = null
 
+    companion object {
+        /** Fraction of a cell's smaller dimension a CHAR key's glyph occupies. Used both below
+         * (sizing the live `drawText`) and by GlyphRenderer in :app (sizing the text baked into
+         * the bitmap a CHAR key exports as) — keeping both on this one ratio is what makes the
+         * generated keyboard's baked-glyph labels come out the same visual size as the editor's
+         * live preview instead of just matching it in shape. */
+        const val CHAR_GLYPH_FILL_RATIO = 0.4f
+    }
+
     fun setPage(newPage: PageLayout) {
         page = newPage
         pressedKey = null
@@ -70,7 +79,7 @@ class KeyboardGridView @JvmOverloads constructor(
         val p = page ?: return
         if (p.cols <= 0 || p.rows <= 0) return
         val (cellW, cellH) = cellSize(p)
-        textPaint.textSize = minOf(cellW, cellH) * 0.4f
+        textPaint.textSize = minOf(cellW, cellH) * CHAR_GLYPH_FILL_RATIO
 
         for (key in p.keys) {
             // Union the owned cells into one Region first so the boundary path traces only the
@@ -101,11 +110,16 @@ class KeyboardGridView @JvmOverloads constructor(
             )
             val bitmap = key.image?.let { imageProvider?.getBitmap(it) }
             if (bitmap != null) {
+                // The bitmap is always square (GlyphRenderer bakes it that way), so stretching it
+                // across the whole (generally non-square) cell would distort the glyph's shape.
+                // Inscribe a centered square sized to the smaller cell dimension instead, the same
+                // dimension drawText below sizes itself off of, so the glyph keeps its proportions.
+                val side = minOf(cellW, cellH)
                 val dst = Rect(
-                    anchorBounds.left.toInt(),
-                    anchorBounds.top.toInt(),
-                    anchorBounds.right.toInt(),
-                    anchorBounds.bottom.toInt(),
+                    (anchorBounds.centerX() - side / 2f).toInt(),
+                    (anchorBounds.centerY() - side / 2f).toInt(),
+                    (anchorBounds.centerX() + side / 2f).toInt(),
+                    (anchorBounds.centerY() + side / 2f).toInt(),
                 )
                 canvas.drawBitmap(bitmap, null, dst, null)
             } else {

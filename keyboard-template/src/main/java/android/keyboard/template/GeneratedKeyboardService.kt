@@ -14,6 +14,7 @@ import android.keyboard.engine.KeyRole
 import android.keyboard.engine.KeyboardGridView
 import android.keyboard.engine.KeyboardLayout
 import android.keyboard.engine.LayoutJson
+import android.keyboard.engine.R as EngineR
 import android.keyboard.template.dictionary.data.DictionaryDatabase
 import android.keyboard.template.dictionary.data.DictionaryRepository
 import android.keyboard.template.dictionary.data.WordEntity
@@ -65,7 +66,10 @@ class GeneratedKeyboardService : InputMethodService() {
         renderCurrentPage()
 
         val strip = LinearLayout(this).also { candidateContainer = it }
-        val candidateStripHeight = resources.getDimensionPixelSize(R.dimen.candidate_strip_height)
+        // keyboard_height/candidate_strip_height live in :keyboard-engine's resources (shared
+        // with the factory app's editor preview, see EngineR import below), not this module's
+        // own R — non-transitive R classes mean android.keyboard.template.R won't include them.
+        val candidateStripHeight = resources.getDimensionPixelSize(EngineR.dimen.candidate_strip_height)
         val candidateScroller = HorizontalScrollView(this).apply {
             isHorizontalScrollBarEnabled = false
             addView(strip)
@@ -77,7 +81,7 @@ class GeneratedKeyboardService : InputMethodService() {
             addView(gridView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         }
 
-        val totalHeight = resources.getDimensionPixelSize(R.dimen.keyboard_height) + candidateStripHeight
+        val totalHeight = resources.getDimensionPixelSize(EngineR.dimen.keyboard_height) + candidateStripHeight
         return FixedHeightContainer(this, totalHeight).apply {
             setContent(content)
         }

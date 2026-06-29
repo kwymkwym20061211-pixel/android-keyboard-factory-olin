@@ -52,6 +52,19 @@ This runs `~/adb_connect_usb.sh` to get USB adb working first, then reads the ph
 the USB passthrough — re-run it any time the phone reboots (wireless adb mode doesn't survive a
 reboot) or its WiFi IP changes (DHCP lease renewal).
 
+## 2026-06-29: `build.sh` installs via `adb push` + `pm install`, not `adb install`
+
+`adb devices` succeeding doesn't mean a subsequent install will survive — device enumeration is a
+tiny handshake, while an install streams the whole APK over the same flaky USB passthrough
+(usbipd-win), so that's where mid-transfer drops actually show up (symptom: `installDebug` hangs
+indefinitely instead of erroring, e.g. stuck at "99% EXECUTING" for minutes). `./gradlew
+installDebug`/`adb install` stream the APK and install in one step, so a hiccup mid-stream kills
+the whole thing. `build.sh`'s install step now does `adb push <apk> /data/local/tmp/` (adb's
+ordinary, hiccup-tolerant sync protocol) followed by a separate `adb shell pm install -r
+<path>` — splitting transfer from install made installs over USB noticeably more reliable on this
+machine. If editing the install step again, keep that split rather than going back to a single
+`adb install`/`./gradlew installDebug` call.
+
 ## 2026-06-27: MVP reached — gotchas worth knowing before touching this code again
 
 Full write-up: `docs/2026/06/mvp-completion-and-troubleshooting.md`. The short version, for future
@@ -59,9 +72,10 @@ update work:
 
 - **Only install `:app`.** `./gradlew installDebug` with no module prefix installs *every*
   application module, including `:keyboard-template` (an internal-only IME template that's
-  bundled into `:app`'s assets, never meant to be installed standalone). Always use
-  `:app:installDebug` / `:app:assembleDebug` (see `build.sh`). If a mystery "Generated Keyboard"
-  app shows up on the test device, that's this.
+  bundled into `:app`'s assets, never meant to be installed standalone). Always build
+  `:app:assembleDebug`/`:app:assembleRelease` specifically (see `build.sh`, which also installs
+  the resulting APK itself rather than via a Gradle install task — see the adb section above). If
+  a mystery "Generated Keyboard" app shows up on the test device, that's this.
 - **A custom IME's input view ignores `LayoutParams` height.** `InputMethodService` hands the
   view returned from `onCreateInputView()` a full-screen-ish `MeasureSpec` regardless of what
   `LayoutParams` you set on it. The only reliable fix found was overriding `onMeasure()` to force
@@ -122,3 +136,48 @@ kept in sync by hand:
 `DownloadsWriter`, not a shared call — there's no single source of truth. If the output directory
 (or any other shared-storage behavior) changes again, grep for `MediaStore.Downloads` and update
 both, plus the matching `export_success_format` string in both modules' `strings.xml`.
+
+## 2026-06-29: keep the editor preview and the generated keyboard's *size* in sync too
+
+The factory app's editor preview (`activity_editor.xml`'s `gridView`) and the actual generated
+keyboard (`GeneratedKeyboardService`) both render the same `KeyboardGridView`, but as two
+separate Views in two separate processes — nothing forces their on-screen *dimensions* to match.
+They had drifted apart: the preview used to fill whatever vertical space was left in
+`EditorActivity` (`layout_height="0dp"` + weight), while the generated keyboard is pinned to a
+fixed `@dimen/keyboard_height` via `FixedHeightContainer`. Since `KeyboardGridView` divides its
+own measured width/height by `cols`/`rows` to size cells, any mismatch between those two heights
+directly distorts the preview's aspect ratio relative to the real output.
+
+Fix: `keyboard_height`/`candidate_strip_height` now live in **`:keyboard-engine`'s**
+`res/values/dimens.xml` (the one module both `:app` and `:keyboard-template` already depend on)
+instead of being defined separately in each. `activity_editor.xml` now sizes `gridView` to
+`@dimen/keyboard_height` directly instead of filling remaining space, so its aspect ratio matches
+the real keyboard's.
+
+- XML resource references (`@dimen/...`) resolve fine across module boundaries through normal
+  Gradle resource merging — no special handling needed there.
+- **Kotlin/Java code references do not**, because this project uses AGP's default
+  `nonTransitiveRClass = true`: a module's generated `R` class only contains resources declared
+  directly in that module, not ones inherited from a dependency. `GeneratedKeyboardService.kt`
+  (in `:keyboard-template`) has to import the defining module's R class explicitly —
+  `import android.keyboard.engine.R as EngineR` — rather than using its own local `R`.
+- If a keyboard-sizing constant needs to change, or a new one is added, put it in
+  `:keyboard-engine`'s `dimens.xml` (not `:app`'s or `:keyboard-template`'s) so the preview can't
+  drift from the real output again.
+
+**Follow-up bug from the same root cause:** fixing the aspect ratio above exposed a second,
+previously-masked mismatch — CHAR key labels came out stretched tall in the generated keyboard
+even though cell shapes now matched. Cause: the editor preview draws CHAR labels live via
+`KeyboardGridView`'s `drawText` (font rendering, always proportionally correct regardless of cell
+shape), but the generated keyboard instead draws a pre-baked square PNG (`GlyphRenderer`, in
+`:app`, runs at export time so the generated app doesn't have to bundle the whole font) — and
+`KeyboardGridView` was stretching that square bitmap to fill the *whole*, generally non-square,
+cell. Fixed by inscribing a centered square (sized to the cell's smaller dimension) instead of
+stretching to the full cell bounds. Also unified the two independent "how big is the glyph
+relative to its drawing surface" constants (`KeyboardGridView`'s live-text sizing vs.
+`GlyphRenderer`'s baked-bitmap sizing) into one — `KeyboardGridView.CHAR_GLYPH_FILL_RATIO` — which
+`:app`'s `GlyphRenderer` now imports directly (`:app` can depend on `:keyboard-engine` symbols in
+code, unlike the reverse `:keyboard-template`→`:keyboard-engine` `R`-class case above, since
+there's no `nonTransitiveRClass` restriction on plain Kotlin `const val`s). If either rendering
+path's sizing changes again, change `CHAR_GLYPH_FILL_RATIO` rather than reintroducing a second
+local constant.

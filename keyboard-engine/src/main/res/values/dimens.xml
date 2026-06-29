@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Single source of truth for the rendered keyboard's footprint, shared by the factory
+         app's editor preview (activity_editor.xml) and the generated keyboard
+         (GeneratedKeyboardService). Keeping both here keeps the preview's aspect ratio matching
+         the real output instead of drifting apart. -->
+    <dimen name="keyboard_height">320dp</dimen>
+    <dimen name="candidate_strip_height">48dp</dimen>
+</resources>

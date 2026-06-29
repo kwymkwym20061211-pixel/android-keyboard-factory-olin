@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.keyboard.engine.KeyboardGridView
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -23,7 +24,10 @@ object GlyphRenderer {
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             this.typeface = typeface
-            textSize = sizePx * 0.6f
+            // Matches KeyboardGridView's live-preview text sizing so the baked bitmap comes out
+            // the same visual size as the editor preview once KeyboardGridView draws it back at
+            // the cell's smaller dimension (not just the same shape -- see CHAR_GLYPH_FILL_RATIO).
+            textSize = sizePx * KeyboardGridView.CHAR_GLYPH_FILL_RATIO
             color = Color.BLACK
             textAlign = Paint.Align.CENTER
         }
