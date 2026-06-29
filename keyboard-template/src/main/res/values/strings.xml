@@ -2,50 +2,50 @@
 <resources>
     <string name="app_name">Generated Keyboard</string>
 
-    <string name="delete">削除</string>
-    <string name="cancel">キャンセル</string>
-    <string name="save">保存</string>
-    <string name="create">作成</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="create">Create</string>
     <string name="ok">OK</string>
 
-    <string name="no_dictionaries_message">辞書がありません。+で新規作成するか、メニューから辞書を読み込んでください。</string>
-    <string name="create_dictionary_title">新規辞書</string>
-    <string name="dictionary_name_hint">辞書名</string>
-    <string name="create_dictionary_error_title">辞書を作成できません</string>
+    <string name="no_dictionaries_message">No dictionaries yet. Tap + to create one, or import a dictionary from the menu.</string>
+    <string name="create_dictionary_title">New dictionary</string>
+    <string name="dictionary_name_hint">Dictionary name</string>
+    <string name="create_dictionary_error_title">Can\'t create dictionary</string>
 
-    <string name="add_word_title">単語を追加</string>
-    <string name="edit_word_title">単語を編集</string>
-    <string name="reading_hint">読み</string>
-    <string name="target_hint">変換先</string>
+    <string name="add_word_title">Add word</string>
+    <string name="edit_word_title">Edit word</string>
+    <string name="reading_hint">Reading</string>
+    <string name="target_hint">Target</string>
 
-    <string name="menu_button_description">メニュー</string>
-    <string name="menu_export">エクスポート</string>
-    <string name="menu_import">インポート</string>
-    <string name="menu_delete_dictionary">この辞書を削除</string>
-    <string name="menu_set_font">フォントを設定</string>
-    <string name="menu_clear_font">フォントを削除</string>
+    <string name="menu_button_description">Menu</string>
+    <string name="menu_export">Export</string>
+    <string name="menu_import">Import</string>
+    <string name="menu_delete_dictionary">Delete this dictionary</string>
+    <string name="menu_set_font">Set font</string>
+    <string name="menu_clear_font">Clear font</string>
 
-    <string name="delete_dictionary_confirm_title">辞書を削除しますか?</string>
-    <string name="delete_dictionary_confirm_message">「%1$s」を削除します。元に戻せません。</string>
+    <string name="delete_dictionary_confirm_title">Delete this dictionary?</string>
+    <string name="delete_dictionary_confirm_message">This will delete \"%1$s\". This can\'t be undone.</string>
 
-    <string name="clear_font_confirm_title">フォントを削除しますか?</string>
-    <string name="clear_font_confirm_message">候補の表示がデフォルトフォントに戻ります。</string>
-    <string name="font_set_success_format">フォントを設定しました: %1$s</string>
-    <string name="font_cleared_success">フォントを削除しました</string>
-    <string name="font_import_error_title">フォントを設定できません</string>
+    <string name="clear_font_confirm_title">Clear the font?</string>
+    <string name="clear_font_confirm_message">Suggestions will go back to using the default font.</string>
+    <string name="font_set_success_format">Font set: %1$s</string>
+    <string name="font_cleared_success">Font cleared</string>
+    <string name="font_import_error_title">Can\'t set font</string>
 
-    <string name="import_error_title">インポートエラー</string>
-    <string name="import_filename_unavailable">ファイル名を取得できませんでした</string>
-    <string name="import_success_format">「%1$s」を読み込みました</string>
-    <string name="export_success_format">Downloads/keyboard/%1$s に書き出しました</string>
+    <string name="import_error_title">Import error</string>
+    <string name="import_filename_unavailable">Couldn\'t get the file name</string>
+    <string name="import_success_format">Imported \"%1$s\"</string>
+    <string name="export_success_format">Exported to Downloads/keyboard/%1$s</string>
 
-    <string name="error_dictionary_name_required">辞書名を入力してください</string>
-    <string name="error_dictionary_name_invalid_char">辞書名に使えない文字が含まれています(%1$s)</string>
-    <string name="error_dictionary_name_duplicate">「%1$s」という辞書は既に存在します</string>
-    <string name="error_word_fields_required">読みと変換先を入力してください</string>
-    <string name="error_csv_filename_must_end_with_csv">ファイル名は.csvで終わる必要があります</string>
-    <string name="error_csv_parse_line_prefix">%1$d行目: %2$s</string>
-    <string name="error_csv_trailing_backslash">末尾が\\で終わっています</string>
-    <string name="error_csv_wrong_column_count">列数が2ではありません(%1$d列)</string>
-    <string name="error_csv_empty_field">読みまたは変換先が空です</string>
+    <string name="error_dictionary_name_required">Enter a dictionary name</string>
+    <string name="error_dictionary_name_invalid_char">Dictionary name contains an invalid character (%1$s)</string>
+    <string name="error_dictionary_name_duplicate">A dictionary named \"%1$s\" already exists</string>
+    <string name="error_word_fields_required">Enter both the reading and the target</string>
+    <string name="error_csv_filename_must_end_with_csv">File name must end with .csv</string>
+    <string name="error_csv_parse_line_prefix">Line %1$d: %2$s</string>
+    <string name="error_csv_trailing_backslash">Ends with a trailing \\</string>
+    <string name="error_csv_wrong_column_count">Expected 2 columns, found %1$d</string>
+    <string name="error_csv_empty_field">Reading or target is empty</string>
 </resources>
