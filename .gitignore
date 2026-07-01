@@ -20,3 +20,6 @@ local.properties
 # Repo-local scratch/work dir for build logs etc. (survives WSL crashes that wipe /tmp).
 # Wipe with ./clean_tmp.sh
 /tmp/
+
+# 生成物なのでテンプレートapkも追加
+app/src/main/assets/keyboard_template.apk
