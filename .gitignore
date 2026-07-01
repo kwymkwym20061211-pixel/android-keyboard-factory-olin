@@ -7,6 +7,7 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+.kotlin/
 .DS_Store
 /build
 # Covers every module's build/ output (app/ also has its own nested .gitignore for this).

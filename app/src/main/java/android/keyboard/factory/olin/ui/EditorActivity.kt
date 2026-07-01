@@ -88,7 +88,6 @@ class EditorActivity : AppCompatActivity() {
 
         binding.prevPageButton.setOnClickListener { viewModel.goToPrevPage() }
         binding.nextPageButton.setOnClickListener { viewModel.goToNextPage() }
-        binding.addPageButton.setOnClickListener { showAddPageDialog() }
         binding.pageSettingsButton.setOnClickListener { showPageSettingsDialog() }
         binding.gridView.onKeyTapped = { key -> showEditKeyDialog(key) }
 
@@ -130,7 +129,20 @@ class EditorActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.action_delete_page)?.isEnabled = viewModel.pages.value.size > 1
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_add_page -> {
+            showAddPageDialog()
+            true
+        }
+        R.id.action_delete_page -> {
+            showDeletePageDialog()
+            true
+        }
         R.id.action_project_settings -> {
             showProjectSettingsDialog()
             true
@@ -194,6 +206,16 @@ class EditorActivity : AppCompatActivity() {
             .setPositiveButton(R.string.save) { _, _ ->
                 val name = dialogBinding.nameInput.text?.toString()?.trim().orEmpty()
                 if (name.isNotEmpty()) viewModel.renameProject(name)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun showDeletePageDialog() {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.page_delete_confirm)
+            .setPositiveButton(R.string.delete) { _, _ ->
+                viewModel.deleteCurrentPage { _ -> }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()

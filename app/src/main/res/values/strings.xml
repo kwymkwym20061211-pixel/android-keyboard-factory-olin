@@ -14,6 +14,8 @@
     <string name="page_prev">◀ Page</string>
     <string name="page_next">Page ▶</string>
     <string name="page_add">+ Add page</string>
+    <string name="page_delete_content_description">Delete current page</string>
+    <string name="page_delete_confirm">Delete this page and all its keys? This cannot be undone.</string>
     <string name="page_label_format">Page %1$d / %2$d (%3$d×%4$d)</string>
     <string name="role_char">Character (sends this text)</string>
     <string name="role_enter">Enter</string>

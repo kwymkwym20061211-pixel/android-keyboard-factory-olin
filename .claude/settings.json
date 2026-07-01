@@ -12,6 +12,7 @@
       "Write(//tmp/**)",
       "Edit(//dev/null/)",
       "Read(//dev/null/)",
+      "Bash(adb exec-out screencap -p *)",
       "WebSearch",
       "WebFetch(domain:mvnrepository.com)",
       "WebFetch(domain:search.maven.org)",
@@ -42,7 +43,8 @@
       "Bash(kill 16076)",
       "Bash(pkill -f \"gradlew :app:assembleDebug\")",
       "Read(//home/user/**)",
-      "Bash(bash -n /home/user/dev/android-keyboard-factory-olin/build.sh)"
+      "Bash(bash -n /home/user/dev/android-keyboard-factory-olin/build.sh)",
+      "Bash(adb exec-out *)"
     ],
     "deny": [
       "Bash(*git push*)"

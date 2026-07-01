@@ -109,6 +109,14 @@ class KeyboardProjectRepository(private val db: KeyboardFactoryDatabase) {
         db.keyboardProjectDao().update(project.copy(iconPath = iconPath, updatedAt = System.currentTimeMillis()))
     }
 
+    suspend fun deletePage(pageId: Long): Boolean {
+        val page = db.pageDao().getById(pageId) ?: return false
+        val pages = db.pageDao().getForProject(page.projectId)
+        if (pages.size <= 1) return false
+        db.pageDao().delete(page)
+        return true
+    }
+
     suspend fun deleteProject(project: KeyboardProjectEntity) {
         db.keyboardProjectDao().delete(project)
     }

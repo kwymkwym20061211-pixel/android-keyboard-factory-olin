@@ -68,6 +68,18 @@ class EditorViewModel(application: Application, private val projectId: Long) : A
         }
     }
 
+    fun deleteCurrentPage(onResult: (Boolean) -> Unit) {
+        val page = currentPage.value ?: run { onResult(false); return }
+        val totalPages = pages.value.size
+        viewModelScope.launch {
+            val deleted = repository.deletePage(page.id)
+            if (deleted) {
+                currentPageIndex.value = currentPageIndex.value.coerceAtMost(totalPages - 2).coerceAtLeast(0)
+            }
+            onResult(deleted)
+        }
+    }
+
     fun updateRole(cellId: Long, role: KeyRole, text: String?) {
         viewModelScope.launch {
             val cell = cells.value.firstOrNull { it.id == cellId } ?: return@launch

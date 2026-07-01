@@ -3,6 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_add_page"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/page_add"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_delete_page"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:title="@string/page_delete_content_description"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_project_settings"
         android:icon="@android:drawable/ic_menu_preferences"
         android:title="@string/project_settings_title"

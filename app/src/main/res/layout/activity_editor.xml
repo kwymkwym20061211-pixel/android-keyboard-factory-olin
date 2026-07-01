@@ -38,12 +38,6 @@
             android:layout_height="wrap_content"
             android:text="@string/page_next" />
 
-        <Button
-            android:id="@+id/addPageButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/page_add" />
-
         <ImageButton
             android:id="@+id/pageSettingsButton"
             android:layout_width="wrap_content"
