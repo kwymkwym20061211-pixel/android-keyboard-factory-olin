@@ -48,6 +48,15 @@
 
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorControlNormal" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize" />
+
     <!-- Fixed to @dimen/keyboard_height (defined in :keyboard-engine, shared with
          GeneratedKeyboardService) rather than filling the remaining screen space, so the
          preview's aspect ratio matches the actual generated keyboard's instead of stretching
